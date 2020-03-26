@@ -6,7 +6,7 @@
         id="menu"
         >
             <v-list dense>
-                <v-list-item link to="/">
+                <v-list-item link to="/pedido">
                 <v-list-item-action>
                     <v-icon>mdi-cart-arrow-down</v-icon>
                 </v-list-item-action>
@@ -57,7 +57,7 @@
                 />
             </div>
             <div id="logout-wrapper">
-                <v-btn class="grey white--text" link to="/logout"><v-icon>mdi-logout</v-icon> Salir</v-btn>
+                <v-btn class="grey white--text" v-on:click="logout"><v-icon>mdi-logout</v-icon> Salir</v-btn>
             </div>
         </v-app-bar>
     </div>
@@ -70,7 +70,13 @@
     }, 
     data: () => ({
       drawer: false,
-    })
+    }),
+    methods:{
+        logout: function () {
+            delete localStorage.token;
+            this.$router.push('/?redirect=' + this.$route.path);
+        }
+    }
   }
 </script>
 

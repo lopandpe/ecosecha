@@ -1,7 +1,8 @@
 <template>
     <v-card class="product" max-width="180">
-        <v-img class="align-end" height="95px" :src="image">                
-            <v-card-text class="product-price">{{ price }}</v-card-text>
+        <!-- <v-img class="align-end" height="95px" :src="'http://ecosecha.vservers.es' + image">                 -->
+        <v-img class="align-end" height="95px" :src="'https://c7.staticflickr.com/9/8052/29758005422_e41269d829_o.jpg'">                
+            <v-card-text class="product-price">{{ precio }}€</v-card-text>
         </v-img>
         <v-card-title class="product-title">{{ name }}</v-card-title>
         <v-card-subtitle class="product-from">{{ from }}</v-card-subtitle>
@@ -35,7 +36,8 @@ export default {
     },
     data () {
         return {
-        foo: 0
+            precio: null,
+            foo: 0
         }
     },  
     methods: {
@@ -60,10 +62,16 @@ export default {
             }
             
         }
+    },
+    mounted (){
+        this.precio = toSpanishNumber(this.price);
     }
 }
 
 
+function toSpanishNumber($number){
+    return $number.toString().replace('.', ',');
+}
 </script>
 
 <style lang="scss">

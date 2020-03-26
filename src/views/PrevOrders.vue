@@ -24,7 +24,7 @@
                   <v-card-text class="d-flex flex-wrap ">
                     <ul id="order-list">
                       <li v-for="order in visiblePages" :key="order.id">
-                        <div class="order-selector" @click="currentOrder = order; setOrderListItemActive(order.id)" v-bind:class="{ active: isOrderListItemActive(order.id) }">{{ order.fecha }}</div>
+                        <div class="order-selector" @click="currentOrder = order; setOrderListItemActive(order.id); calcHeightOrders();" v-bind:class="{ active: isOrderListItemActive(order.id) }">{{ order.fecha }}</div>
                       </li>
                     </ul>
                     <v-pagination
@@ -478,16 +478,15 @@ export default {
     },
     total: function(){
         let total = toEnglishNumber(this.orderSum) - toEnglishNumber(this.discountTotal) + toEnglishNumber(this.currentOrder.order.envio);
-        console.log(total);
+        // console.log(total);
         return toSpanishNumber(total.toFixed(2));
     },
       rowTotal(price, quantity){
           return toSpanishNumber(toEnglishNumber(price) * quantity);
       },
-      // calcHeightOrders(){
-      //     console.log('hola');
-      //     calcHeightOrders(300);
-      // },
+      calcHeightOrders(){
+          calcHeightOrders(300);
+      },
       toggleOrderDetails(){
           this.ordersOpened = !this.ordersOpened;
           let myBody = document.getElementsByTagName('body')[0];
@@ -519,6 +518,17 @@ function toEnglishNumber($number){
 }
 function toSpanishNumber($number){
     return $number.toString().replace('.', ',');
+}
+function calcHeightOrders(offset = 150){
+    let elementHeight = document.querySelector('.order-details-container').offsetHeight;
+    let orderDetails = document.getElementById('order-details');
+    let orderDetailsHeight = orderDetails.offsetHeight;
+    // console.log('elementHeight = ' + elementHeight + '  \n orderDetailsHeight = ' + orderDetailsHeight + ' \n window.innerHeight = ' + orderDetailsHeight);
+    if( (elementHeight + offset > orderDetailsHeight) || (elementHeight + offset > window.innerHeight) ){
+            orderDetails.classList.add('scrollbar');
+    }else{
+            orderDetails.classList.remove('scrollbar');
+    }
 }
 </script>
 

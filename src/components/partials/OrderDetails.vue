@@ -6,9 +6,9 @@
         Puedes añadir o eliminar los productos que desees. Si tu cuenta tiene configurada un pedido por defecto, aparecerá marcado aquí abajo. Para modificar los datos de usuario, ponte en contacto con nosotr@s en xxxxx@xxxx.com
     </p>
     <div id="client-details">
-        <h3>Pedro López Andradas</h3>
-        <h3>Zona de reparto: Puente de Vallecas</h3>
-        <h3><strong>Fecha del pedido: XX/XX/XXXX</strong></h3>
+        <h3>{{ name }}</h3>
+        <h3>Zona de reparto: {{ zone }}</h3>
+        <h3><strong>Fecha del pedido: {{ orderDate }}</strong></h3>
     </div>
     <div id="order-details-table"  v-if="order.length">
         <table>
@@ -69,12 +69,17 @@ export default {
     },
     props: {
         order: Array,
+        user: Object,
+        fechaPedido: String,
         OrderDetailsHeight: Number,
     },
     data () {
       return {
-          discount: 5,
-          delivery: '4,90',
+          name: 'xxxxxxx',
+          zone: 'xxxxxxx',
+          orderDate: 'xx/xx/xxxx',
+          discount: 0,
+          delivery: 'x,xx',
           ordersOpened: false,
       }
     },
@@ -103,7 +108,7 @@ export default {
                     cesta = true;
                 }
             });
-            console.log(total)
+            // console.log(total)
             return (cesta || parseFloat(total) > 20);
         }
     },
@@ -121,7 +126,6 @@ export default {
             return toSpanishNumber( (toEnglishNumber(price) * quantity).toFixed(2) );
         },
         calcHeightOrders(){
-            console.log('hola');
             calcHeightOrders(300);
         },
         toggleOrderDetails(){
@@ -133,6 +137,13 @@ export default {
         
     },
     mounted(){
+        
+          this.name = this.user.nombre;
+          this.zone = this.user.nombreGrupo;
+          this.orderDate = this.fechaPedido;
+          this.discount = this.user.dtoSocio;
+          this.delivery = this.user.pagoReparto;
+
         this.$nextTick(function() {
             // window.addEventListener('resize', this.calcHeightOrders);
             var doit;
@@ -161,7 +172,7 @@ function calcHeightOrders(offset = 150){
     let elementHeight = document.querySelector('.order-details-container').offsetHeight;
     let orderDetails = document.getElementById('order-details');
     let orderDetailsHeight = orderDetails.offsetHeight;
-    console.log('elementHeight = ' + elementHeight + '  \n orderDetailsHeight = ' + orderDetailsHeight + ' \n window.innerHeight = ' + orderDetailsHeight);
+    // console.log('elementHeight = ' + elementHeight + '  \n orderDetailsHeight = ' + orderDetailsHeight + ' \n window.innerHeight = ' + orderDetailsHeight);
     if( (elementHeight + offset > orderDetailsHeight) || (elementHeight + offset > window.innerHeight) ){
             orderDetails.classList.add('scrollbar');
     }else{
