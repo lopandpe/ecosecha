@@ -74,7 +74,8 @@
     methods:{
         logout: function () {
             delete localStorage.token;
-            this.$router.push('/?redirect=' + this.$route.path);
+            this.$emit('logOut');
+            this.$router.push('/');
         }
     }
   }

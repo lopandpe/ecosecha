@@ -1,9 +1,9 @@
 <template>
   <v-app id="inspire">
     <!-- <Nav /> -->
-    <Menu v-if="logged"/>
+    <Menu v-if="logged" @logOut="logOut" />
     <v-content>
-      <router-view/>
+      <router-view   />
     </v-content>
     <div id="loader" v-bind:class="{ active: loader }">
       <div class="centered">
@@ -64,12 +64,18 @@
     },
     methods: {
       checkUserCredentials(){
-        if (!localStorage.token && this.$route.path !== '/') {
+        
+        let allowedRoutes = ['/', '/remember', '/resetpassword']
+
+        if (!localStorage.token && !allowedRoutes.includes( this.$route.path ) ) {
           this.$router.push('/?redirect=' + this.$route.path)
         }else if (localStorage.token){
           this.logged = true;
         }
       },
+      logOut(){
+        this.logged = false;
+      }
     },
     updated () {
       this.checkUserCredentials();
@@ -77,11 +83,9 @@
     created () {
       this.checkUserCredentials();
       this.$http.interceptors.request.use((config) => {
-        console.log(true);
         this.loader = true;
         return config;
       }, (error) => {
-        console.log('error!');
         // trigger 'loading=false' event here
         return Promise.reject(error);
       });
@@ -91,8 +95,10 @@
         this.loader = false;
         return response;
       }, (error) => {
-        console.log('error2');
+        console.log('Error conectando con el servidor.');
+        console.log(error);
         // trigger 'loading=false' event here
+        this.loader = false;
         return Promise.reject(error);
       });
     }

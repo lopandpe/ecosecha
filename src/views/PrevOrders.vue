@@ -22,15 +22,15 @@
               >
                <v-card flat>
                   <v-card-text class="d-flex flex-wrap ">
-                    <ul id="order-list">
-                      <li v-for="order in visiblePages" :key="order.id">
-                        <div class="order-selector" @click="currentOrder = order; setOrderListItemActive(order.id); calcHeightOrders();" v-bind:class="{ active: isOrderListItemActive(order.id) }">{{ order.fecha }}</div>
+                    <ul id="order-list" v-if="order.fechas">
+                      <li v-for="order in visiblePages" :key="order.fecha">
+                        <div class="order-selector" @click="/*currentOrder = order.fecha;*/ prevOrder(order.fecha); calcHeightOrders();" v-bind:class="{ active: isOrderListItemActive(order.fecha) }">{{ order.fecha }}</div>
                       </li>
                     </ul>
                     <v-pagination
                       v-model="page"
-                      :length="Math.ceil(order.content.length/perPage)"
-                      v-if="order.content.length > perPage"
+                      :length="Math.ceil(order.fechas.length/perPage)"
+                      v-if="order.fechas && order.fechas.length > perPage"
                     ></v-pagination>
                   </v-card-text>
                </v-card>
@@ -103,6 +103,8 @@
 // import ProductsTab from '@/components/partials/ProductsTab.vue'
 // import OrderDetails from '@/components/partials/OrderDetails.vue'
 
+import jwt_decode from 'jwt-decode';
+
 export default {
   name: 'Home',
   components: {
@@ -112,13 +114,15 @@ export default {
   data () {
     return{
       page: 1,
-      perPage: 10,
+      perPage: 20,
       tab: null,
       ordersOpened: false,
       activeOrderListItem: '1121',
+      fechas: null,
       orders: [
         { 
           tab: 'Pedidos anteriores', 
+          fechas: null,
           content: [
             {
               id: '1121',
@@ -427,6 +431,7 @@ export default {
           ]
         },
       ],
+      currOrder: null,
       currentOrder: 
             {
               id: '1121',
@@ -461,15 +466,6 @@ export default {
   //     this.currentOrder = this.orders[0].content[0];
   // },
   methods: {
-      // deleteRow (id) {
-      //     let pos = this.order.map(function(e) { 
-      //         return e.id; 
-      //     }).indexOf(id);
-      //     if ( pos > -1 ){
-      //         this.order.splice(pos, 1);
-      //         calcHeightOrders(50);
-      //     }
-      // },  
     isOrderListItemActive: function(orderItem){
       return this.activeOrderListItem === orderItem;
     },
@@ -481,23 +477,42 @@ export default {
         // console.log(total);
         return toSpanishNumber(total.toFixed(2));
     },
-      rowTotal(price, quantity){
-          return toSpanishNumber(toEnglishNumber(price) * quantity);
-      },
-      calcHeightOrders(){
-          calcHeightOrders(300);
-      },
-      toggleOrderDetails(){
-          this.ordersOpened = !this.ordersOpened;
-          let myBody = document.getElementsByTagName('body')[0];
-          myBody.classList.toggle('orders-opened');
-          this.$emit('ordersOpened', this.ordersOpened);
-      }
-      
+    rowTotal(price, quantity){
+        return toSpanishNumber(toEnglishNumber(price) * quantity);
+    },
+    calcHeightOrders(){
+        calcHeightOrders(300);
+    },
+    toggleOrderDetails(){
+        this.ordersOpened = !this.ordersOpened;
+        let myBody = document.getElementsByTagName('body')[0];
+        myBody.classList.toggle('orders-opened');
+        this.$emit('ordersOpened', this.ordersOpened);
+    },
+    setData ( data ){
+      this.orders[0].fechas = data.mdoFechasPedidosAnterior;
+      console.log(this.orders);
+    },
+    setPrevOrder (data){
+      this.currOrder = data;
+      console.log(this.currOrder);
+    },
+    prevOrder (date){      
+      let token = localStorage.token;
+      let tokenDecoded = jwt_decode(token);
+      let userId = tokenDecoded.jti;
+
+      this.$http.post('/pedidoanterior', { 
+        usuario: userId, 
+        token: localStorage.token,
+        fechaPedidoAnterior: date
+      }).then( response => this.setPrevOrder(response.data) )
+        .catch( error => console.log(error) );
+    }
   },
   computed: {
     visiblePages () {
-      return this.orders[0].content.slice((this.page - 1)* this.perPage, this.page * this.perPage)
+      return this.orders[0].fechas.slice((this.page - 1)* this.perPage, this.page * this.perPage)
     },
     orderSum: function(){          
         let total = 0;
@@ -510,6 +525,18 @@ export default {
         let price = toEnglishNumber(this.orderSum) / 100 * toEnglishNumber(this.currentOrder.order.descuento);
         return toSpanishNumber(parseFloat(price).toFixed(2));
     },
+  },
+  mounted () {    
+    let token = localStorage.token;
+    let tokenDecoded = jwt_decode(token);
+    let userId = tokenDecoded.jti;
+
+    this.$http.post('/all', { 
+      usuario: userId, 
+      password: '',
+      token: localStorage.token
+    }).then( response => this.setData(response.data) )
+      .catch( error => console.log(error) );
   }
 }
 

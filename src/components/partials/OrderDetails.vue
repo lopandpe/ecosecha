@@ -72,6 +72,7 @@ export default {
         user: Object,
         fechaPedido: String,
         OrderDetailsHeight: Number,
+        defaultOrder: Array,
     },
     data () {
       return {

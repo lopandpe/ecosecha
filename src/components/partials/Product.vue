@@ -1,4 +1,4 @@
-<template>
+<template v-if="parseInt(precio) > 0">
     <v-card class="product" max-width="180">
         <!-- <v-img class="align-end" height="95px" :src="'http://ecosecha.vservers.es' + image">                 -->
         <v-img class="align-end" height="95px" :src="'https://c7.staticflickr.com/9/8052/29758005422_e41269d829_o.jpg'">                

@@ -1,0 +1,55 @@
+@import '@/styles/_variables.scss';
+.alert {
+    background-color: $primary-color;
+    padding: 5px;
+    color: #FFF;
+    margin-bottom: 20px;
+    &.alert-danger {
+        background-color: $error-color;
+    }
+}
+
+body {
+    background: #605B56;
+}
+
+.btn {
+    background-color: $primary-color;
+    border-radius: 3px;
+    padding: 5px 10px;
+    color: #FFF;
+    &:hover {
+        opacity: 0.8;
+    }
+}
+
+.login-wrapper {
+    background: #fff;
+    /* width: 70%; */
+    /* margin: 12% auto; */
+    background-image: url('../../assets/login.jpg');
+    background-size: cover;
+    background-position: center center;
+    height: 100%;
+    form {
+        background-color: #FFF;
+        // border-radius: 5px;
+        padding: 20px;
+        position: absolute;
+        max-width: 100%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 320px;
+        input {
+            width: 100%;
+            margin-bottom: 20px;
+            padding: 5px;
+            border: 1px solid $soft-grey;
+        }
+        .btn {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+    }
+}

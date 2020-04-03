@@ -36,6 +36,7 @@ export default {
       products: null,
       familias: null,
       user: null,
+      defaultOrder: []
     } 
   },
   methods: {
@@ -49,6 +50,7 @@ export default {
         }else{
             this.order.push(product);
         }
+        console.log(this.$refs);
         this.$refs.orderDetails.calcHeightOrders();
       },
       setData ( data ){
@@ -57,6 +59,22 @@ export default {
         this.fechaPedido = data.mdoFechas.fecha;
         this.products = data.mdoProductosExtras;
         this.familias = data.mdoFamilias;
+        this.defaultOrderCalc ( data.mdoPedidosCambios )
+      },
+      defaultOrderCalc ( order ){
+        console.log('----------------- ORDER -------------------');
+        console.log(order);
+        if(Array.isArray(order.articulos) && order.articulos.length){
+          let producto = {
+                id: order.articulos[0].idProducto,
+                name: order.articulos[0].nombreProducto,
+                price: order.articulos[0].importe,
+                quantity: order.articulos[0].cantidad,
+                type: order.articulos[0].familiaProducto
+            };
+          this.updateBasket(producto);
+          // console.log(producto);
+        }
       }
   } ,
   mounted () {    
@@ -64,7 +82,7 @@ export default {
     let tokenDecoded = jwt_decode(token);
     let userId = tokenDecoded.jti;
     console.log(userId);
-   
+
     this.$http.post('/all', { 
       usuario: userId, 
       password: '',
