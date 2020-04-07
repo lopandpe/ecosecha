@@ -532,7 +532,7 @@ export default {
     let userId = tokenDecoded.jti;
 
     this.$http.post('/all', { 
-      usuario: userId, 
+      usuario: userId,
       password: '',
       token: localStorage.token
     }).then( response => this.setData(response.data) )

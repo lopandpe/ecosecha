@@ -1,7 +1,7 @@
 <template v-if="parseInt(precio) > 0">
     <v-card class="product" max-width="180">
         <!-- <v-img class="align-end" height="95px" :src="'http://ecosecha.vservers.es' + image">                 -->
-        <v-img class="align-end" height="95px" :src="'https://c7.staticflickr.com/9/8052/29758005422_e41269d829_o.jpg'">                
+        <v-img class="align-end" height="95px" :src="imagen">                
             <v-card-text class="product-price">{{ precio }}€</v-card-text>
         </v-img>
         <v-card-title class="product-title">{{ name }}</v-card-title>
@@ -9,7 +9,7 @@
         <v-card-actions class="product-actions">
             <div id="quantity-wrapper">
                 <v-btn class="product-control" text small v-on:click="decrement()">-</v-btn>
-                <v-text-field class="product-quantity" v-model="foo" value="0" type="number" min="0"></v-text-field>
+                <v-text-field class="product-quantity" v-model="foo" value="0" type="text" min="0" disabled></v-text-field>
                 <v-btn class="product-control" text small  v-on:click="increment()">+</v-btn>
             </div>
             <v-btn text small class="product-add-to-cart bg-primary" v-on:click="submit">Añadir</v-btn>
@@ -37,7 +37,8 @@ export default {
     data () {
         return {
             precio: null,
-            foo: 0
+            foo: 0,
+            imagen: null
         }
     },  
     methods: {
@@ -64,7 +65,21 @@ export default {
         }
     },
     mounted (){
+        // console.log(this.image);
         this.precio = toSpanishNumber(this.price);
+        let foto = this.image;
+        foto = this.image.replace('c:/products/', '../img/');
+        foto = this.image.replace('/products/', '../img/');
+        let imageExists = require('image-exists');
+        console.log('Foto1: ' + foto);
+        imageExists(foto, function(exists) {
+            // Then get league logo
+            if (!exists) {
+                foto = "../default.jpg";
+                console.log('Foto2: ' + foto);
+            }
+        });
+        this.imagen = foto;
     }
 }
 
@@ -114,6 +129,12 @@ function toSpanishNumber($number){
                     padding: 0 5px;
                 }
                 .product-quantity{
+                    .v-input__slot{
+                        &:before{
+                            border-color: rgba(0, 0, 0, 0.42);
+                            border-image: none;
+                        }
+                    }
                     .v-text-field__slot{
                         overflow: hidden;
                     }
@@ -126,6 +147,7 @@ function toSpanishNumber($number){
                         -moz-appearance:    none;
                         appearance:         none;
                         margin: 0;
+                        color: #000 !important;
                         // margin-right: -15px;
                     }
                 }

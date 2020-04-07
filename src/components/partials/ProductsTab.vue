@@ -74,6 +74,7 @@ export default {
             return -1
         return 0
       });
+      console.log(this.items)
     }
 }
 

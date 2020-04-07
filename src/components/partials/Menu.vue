@@ -53,7 +53,14 @@
                 contain
                 min-width="200"
                 src="../../assets/ecosecha.png"
-                width="200"
+                width="200" v-if="!guerta"
+                />
+                <v-img
+                alt="Güerta"
+                contain
+                min-width="200"
+                src="../../assets/guerta.png"
+                width="200" v-if="guerta"
                 />
             </div>
             <div id="logout-wrapper">
@@ -67,6 +74,7 @@
   export default {
     props: {
       source: String,
+      guerta: Boolean
     }, 
     data: () => ({
       drawer: false,

@@ -76,11 +76,11 @@ export default {
     },
     data () {
       return {
-          name: 'xxxxxxx',
-          zone: 'xxxxxxx',
-          orderDate: 'xx/xx/xxxx',
-          discount: 0,
-          delivery: 'x,xx',
+          name: '',
+          zone: '',
+          orderDate: '',
+          discount: '',
+          delivery: '',
           ordersOpened: false,
       }
     },
@@ -154,10 +154,6 @@ export default {
                     calcHeightOrders();
                 }, 100);
             };
-            // window.addEventListener('resize', function(){
-            //     clearTimeout(doit);
-            //     doit = setTimeout(this.calcHeightOrders, 100);
-            // });
             
         });
     }  

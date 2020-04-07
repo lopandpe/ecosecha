@@ -47,7 +47,7 @@ export default {
     },
     rememberSuccessful () {
       this.error = '';
-      this.mensaje = 'Revisa tu bandeja de entrada. Te hemos enviado un enlace para resetear la contraseña.'
+      this.mensaje = 'Revisa tu bandeja de entrada. Te hemos enviado una contraseña temporal.'
     },
     loginFailed (error) {
       console.log(error.response.data.mensaje);

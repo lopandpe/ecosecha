@@ -21,7 +21,7 @@ export default {
     return {
       user: '',
       password: '',
-      error: false
+      error: false,
     }
   },
   methods: {
@@ -53,7 +53,7 @@ export default {
 
       localStorage.token = req.data.JWT
       this.error = false
-
+      
       this.$router.replace(this.$route.query.redirect || '/pedido')
     },
     loginFailed (error) {

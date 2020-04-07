@@ -1,7 +1,7 @@
 <template>
-  <v-app id="inspire">
+  <v-app id="inspire" v-bind:class="{ guerta: guerta }">
     <!-- <Nav /> -->
-    <Menu v-if="logged" @logOut="logOut" />
+    <Menu v-if="logged" @logOut="logOut" :guerta="guerta"/>
     <v-content>
       <router-view   />
     </v-content>
@@ -50,6 +50,7 @@
 
 <script>
   import Menu from './components/partials/Menu.vue'; 
+  import jwt_decode from 'jwt-decode';
   export default {
     props: {
       source: String,
@@ -58,15 +59,18 @@
       drawer: null,
       loader: false,
       logged: false,
+      guerta: false
     }),
     components: {
       Menu
     },
     methods: {
-      checkUserCredentials(){
-        
-        let allowedRoutes = ['/', '/remember', '/resetpassword']
-
+      checkUserCredentials(){ 
+        if (localStorage.token){
+            let tokenDecoded = jwt_decode(localStorage.token);
+            this.guerta = tokenDecoded.distribution == 1;
+        }       
+        let allowedRoutes = ['/', '/remember', '/resetpassword'];
         if (!localStorage.token && !allowedRoutes.includes( this.$route.path ) ) {
           this.$router.push('/?redirect=' + this.$route.path)
         }else if (localStorage.token){
@@ -85,23 +89,24 @@
       this.$http.interceptors.request.use((config) => {
         this.loader = true;
         return config;
-      }, (error) => {
-        // trigger 'loading=false' event here
-        return Promise.reject(error);
-      });
+        }, (error) => {
+          return Promise.reject(error);
+        });
 
       this.$http.interceptors.response.use((response) => {
-        // trigger 'loading=false' event here
         this.loader = false;
         return response;
       }, (error) => {
-        console.log('Error conectando con el servidor.');
-        console.log(error);
-        // trigger 'loading=false' event here
         this.loader = false;
         return Promise.reject(error);
       });
-    }
+    },
+    // mounted () {
+    //   if (localStorage.token){
+    //       let tokenDecoded = jwt_decode(localStorage.token);
+    //       this.guerta = tokenDecoded.distribution == 1;
+    //   }
+    // }
   }
 </script>
 

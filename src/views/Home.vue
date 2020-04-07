@@ -1,13 +1,17 @@
 <template>
   <div class="content-wrapper">
     <div id="order" class="col-12 col-md-6 col-lg-8">
-      <p class="intro">
-        Configuración del pedido para el {{ fechaPedido }}. Recuerda que todo pedido debe incluir como mínimo una cesta o 20 euros en productos independientes. Cualquier duda que tengas, ponte en contacto con nosotr@s en xxxxx@xxxx.com
+      <p class="intro" v-if="!guerta">
+        Configuración del pedido para el {{ fechaPedido }}. Recuerda que todo pedido debe incluir como mínimo una cesta o 20 euros en productos independientes. Cualquier duda que tengas, ponte en contacto con nosotr@s en info@ecosecha.org
       </p>
+      <p class="intro" v-if="guerta">
+        Configuración del pedido para el {{ fechaPedido }}. Recuerda que todo pedido debe incluir como mínimo 20 euros en productos. Cualquier duda que tengas, ponte en contacto con nosotr@s en xxxxx@xxxx.com
+      </p>
+      <h3 v-if="validation" class="red darken-2 text-center"><span class="white--text">{{ validation }}</span></h3>
       <ProductsTab @updateBasket="updateBasket" :products="products" :familias="familias" v-if="products"/>
     </div>
     <div id="order-details" class="col-12 col-md-6 col-lg-4">
-      <OrderDetails ref="orderDetails" :order="order" :user="user" :fechaPedido="fechaPedido" v-if="user"/>
+      <OrderDetails ref="orderDetails" :order="order" :user="user" :fechaPedido="fechaPedido" v-if="user && !validation"/>
     </div>
   </div>
 </template>
@@ -36,7 +40,9 @@ export default {
       products: null,
       familias: null,
       user: null,
-      defaultOrder: []
+      defaultOrder: [],
+      validation: null,
+      guerta: false
     } 
   },
   methods: {
@@ -44,44 +50,60 @@ export default {
         let prod = this.order.find( el => {
                 return el.id === product.id;
             });
-        // console.log(prod);
         if(prod){
             prod.quantity += parseInt(product.quantity);
         }else{
             this.order.push(product);
         }
-        console.log(this.$refs);
-        this.$refs.orderDetails.calcHeightOrders();
+        setTimeout(() => {
+          this.calcHeightOrders();
+        }, 300);
+        
       },
       setData ( data ){
-        console.log(data);
+        // console.log(data);
         this.user = data.mdoConsumidor;
         this.fechaPedido = data.mdoFechas.fecha;
         this.products = data.mdoProductosExtras;
         this.familias = data.mdoFamilias;
-        this.defaultOrderCalc ( data.mdoPedidosCambios )
+        this.defaultOrderCalc ( data.mdoPedidosCambios );
+        this.validation = data.mdoConsumidor.validacion;
       },
       defaultOrderCalc ( order ){
-        console.log('----------------- ORDER -------------------');
-        console.log(order);
         if(Array.isArray(order.articulos) && order.articulos.length){
-          let producto = {
-                id: order.articulos[0].idProducto,
-                name: order.articulos[0].nombreProducto,
-                price: order.articulos[0].importe,
-                quantity: order.articulos[0].cantidad,
-                type: order.articulos[0].familiaProducto
-            };
-          this.updateBasket(producto);
-          // console.log(producto);
+          for(let i = 0; i < order.articulos.length; i++){
+            if(parseInt( order.articulos[i].importe) > 0){
+              let producto = {
+                    id: order.articulos[i].idProducto,
+                    name: order.articulos[i].nombreProducto,
+                    price: order.articulos[i].importe,
+                    quantity: order.articulos[i].cantidad,
+                    type: order.articulos[i].familiaProducto
+                };
+              this.updateBasket(producto);
+            }
+          } 
         }
+      },
+      calcHeightOrders(offset = 150){ 
+          let elementHeight = document.querySelector('.order-details-container').offsetHeight;
+          let orderDetails = document.getElementById('order-details');
+          let orderDetailsHeight = orderDetails.offsetHeight;
+          if( (elementHeight + offset > orderDetailsHeight) || (elementHeight + offset > window.innerHeight) ){
+            orderDetails.classList.add('scrollbar');
+          }else{
+            orderDetails.classList.remove('scrollbar'); 
+          }
       }
   } ,
   mounted () {    
     let token = localStorage.token;
     let tokenDecoded = jwt_decode(token);
     let userId = tokenDecoded.jti;
-    console.log(userId);
+
+    if(tokenDecoded.distribution == 1){
+      this.guerta = true;
+    }
 
     this.$http.post('/all', { 
       usuario: userId, 

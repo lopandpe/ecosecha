@@ -1,10 +1,10 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
-import Login from '../views/Login.vue'
-import Remember from '../views/remember.vue'
-import Reset from '../views/reset.vue'
-import PrevOrders from '../views/PrevOrders.vue'
+import Vue from 'vue';
+import VueRouter from 'vue-router';
+import Home from '../views/Home.vue';
+import Login from '../views/Login.vue';
+import Remember from '../views/remember.vue';
+import Reset from '../views/reset.vue';
+import PrevOrders from '../views/PrevOrders.vue';
 
 Vue.use(VueRouter)
 
@@ -42,12 +42,12 @@ const routes = [
         // which is lazy-loaded when the route is visited.
         component: PrevOrders
     }
-]
+];
 
 const router = new VueRouter({
     mode: 'history',
     base: process.env.BASE_URL,
     routes
-})
+});
 
-export default router
+export default router;
