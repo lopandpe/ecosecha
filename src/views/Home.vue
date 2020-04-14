@@ -2,16 +2,16 @@
   <div class="content-wrapper">
     <div id="order" class="col-12 col-md-6 col-lg-8">
       <p class="intro" v-if="!guerta">
-        Configuración del pedido para el {{ fechaPedido }}. Recuerda que todo pedido debe incluir como mínimo una cesta o 20 euros en productos independientes. Cualquier duda que tengas, ponte en contacto con nosotr@s en info@ecosecha.org
+        Configuración del pedido para el {{ fechaPedido }}. Recuerda que todo pedido debe incluir como mínimo una cesta o {{ minimo}} euros en productos independientes. Cualquier duda que tengas, ponte en contacto con nosotr@s en <a :href="`mailto:${mailEcosecha}`" target="_blank">{{ mailEcosecha }}</a>
       </p>
       <p class="intro" v-if="guerta">
-        Configuración del pedido para el {{ fechaPedido }}. Recuerda que todo pedido debe incluir como mínimo 20 euros en productos. Cualquier duda que tengas, ponte en contacto con nosotr@s en xxxxx@xxxx.com
+        Configuración del pedido para el {{ fechaPedido }}. Recuerda que todo pedido debe incluir como mínimo 20 euros en productos. Cualquier duda que tengas, ponte en contacto con nosotr@s en <a  :href="`mailto:${mailGuerta}`" target="_blank">{{ mailGuerta }}</a>
       </p>
       <h3 v-if="validation" class="red darken-2 text-center"><span class="white--text">{{ validation }}</span></h3>
-      <ProductsTab @updateBasket="updateBasket" :products="products" :familias="familias" v-if="products"/>
+      <ProductsTab @updateBasket="updateBasket" :products="products" :familias="familias" :despensa="despensa" v-if="products"/>
     </div>
     <div id="order-details" class="col-12 col-md-6 col-lg-4">
-      <OrderDetails ref="orderDetails" :order="order" :user="user" :fechaPedido="fechaPedido" v-if="user && !validation"/>
+      <OrderDetails ref="orderDetails" :order="order" :user="user" :fechaPedido="fechaPedido" :guerta="guerta" :minimo="minimo" v-if="user && !validation"/>
     </div>
   </div>
 </template>
@@ -42,7 +42,11 @@ export default {
       user: null,
       defaultOrder: [],
       validation: null,
-      guerta: false
+      guerta: false,
+      minimo: null,
+      mailEcosecha: null,
+      mailGuerta: null,
+      depensa: 1
     } 
   },
   methods: {
@@ -61,29 +65,52 @@ export default {
         
       },
       setData ( data ){
-        // console.log(data);
         this.user = data.mdoConsumidor;
-        this.fechaPedido = data.mdoFechas.fecha;
-        this.products = data.mdoProductosExtras;
-        this.familias = data.mdoFamilias;
-        this.defaultOrderCalc ( data.mdoPedidosCambios );
+        this.minimo = parseFloat(data.mdoConfiguracion.minimo.trim());
+        this.mailEcosecha = data.mdoConsumidor.cuentasCorreo[0];
+        this.mailGuerta = data.mdoConsumidor.cuentasCorreo[1];
+        this.fechaPedido = data.mdoConfiguracion.fecha;
+        this.despensa = data.mdoConsumidor.pedidoCarta;
+        this.setProductsList(data);
+        this.defaultOrderCalc ( data.mdoPedidosExtras );
         this.validation = data.mdoConsumidor.validacion;
       },
       defaultOrderCalc ( order ){
         if(Array.isArray(order.articulos) && order.articulos.length){
+          let printed = false;
           for(let i = 0; i < order.articulos.length; i++){
             if(parseInt( order.articulos[i].importe) > 0){
+              if(!printed){
+                printed = true;
+              }
               let producto = {
                     id: order.articulos[i].idProducto,
                     name: order.articulos[i].nombreProducto,
-                    price: order.articulos[i].importe,
+                    price: order.articulos[i].precio,
                     quantity: order.articulos[i].cantidad,
-                    type: order.articulos[i].familiaProducto
+                    type: order.articulos[i].familiaProducto,
+                    familia: order.articulos[i].familiaProducto,
+                    codigo: order.articulos[i].codigoProducto
                 };
               this.updateBasket(producto);
             }
           } 
         }
+      },
+      setProductsList (data){
+        let allProducts = data.mdoProductosExtras;
+        let cestas = data.mdoProductosCambios;
+        allProducts.push(cestas)
+        for(let i = 0; i < cestas.length; i++ ){
+          allProducts.push(cestas[i]);
+        }
+        this.products = allProducts;        
+        let familia = {
+          codigo: 1,
+          nombre: 'CESTAS'
+        };
+        this.familias = data.mdoFamilias;
+        this.familias.push(familia);
       },
       calcHeightOrders(offset = 150){ 
           let elementHeight = document.querySelector('.order-details-container').offsetHeight;
@@ -94,23 +121,26 @@ export default {
           }else{
             orderDetails.classList.remove('scrollbar'); 
           }
+      },
+      getAllData(){
+        let token = localStorage.token;
+        let tokenDecoded = jwt_decode(token);
+        let userId = tokenDecoded.jti;
+
+        if(tokenDecoded.distribution == 1){
+          this.guerta = true;
+        }
+        this.$http.post('/all', { 
+          usuario: userId, 
+          password: '',
+          fechaPedido: '',
+          token: localStorage.token
+        }).then( response => this.setData(response.data) )
+          .catch( error => console.log(error) );
       }
   } ,
   mounted () {    
-    let token = localStorage.token;
-    let tokenDecoded = jwt_decode(token);
-    let userId = tokenDecoded.jti;
-
-    if(tokenDecoded.distribution == 1){
-      this.guerta = true;
-    }
-
-    this.$http.post('/all', { 
-      usuario: userId, 
-      password: '',
-      token: localStorage.token
-    }).then( response => this.setData(response.data) )
-      .catch( error => console.log(error) );
+    this.getAllData();
   }
 }
 </script>

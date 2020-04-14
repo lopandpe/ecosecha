@@ -3,7 +3,7 @@
     <v-icon v-on:click="toggleOrderDetails()" id="close-orders" class="hidden-md-and-up">mdi-close</v-icon>
     <h2>Resumen del pedido</h2>
     <p class="order-info">
-        Puedes añadir o eliminar los productos que desees. Si tu cuenta tiene configurada un pedido por defecto, aparecerá marcado aquí abajo. Para modificar los datos de usuario, ponte en contacto con nosotr@s en xxxxx@xxxx.com
+        Puedes añadir o eliminar los productos que desees. Si tu cuenta tiene configurada un pedido por defecto, aparecerá marcado aquí abajo. 
     </p>
     <div id="client-details">
         <h3>{{ name }}</h3>
@@ -51,10 +51,24 @@
             <span v-if=" order.length ">Total: {{ total }}€</span>
         </div>
         <div id="order-footer-buttons" v-bind:class="{ 'show-checkout': ordersOpened}">
-            <v-btn text id="order-checkout" class="bg-primary hidden-sm" :disabled="!canCheckout">Confirmar</v-btn>
+            <v-btn text id="order-checkout" class="bg-primary hidden-sm" :disabled="!canCheckout" @click="checkOut">{{ checkOutText }}</v-btn>
             <v-btn text id="order-show" class="bg-primary hidden-md-and-up" @click="toggleOrderDetails">Ver pedido</v-btn>
         </div>
-    </div>
+         <div class="alert alert-danger" v-if="error">{{ error }}</div>
+    </div>    
+    <v-dialog
+        v-model="dialog"
+        width="500"
+        >
+        <v-card>
+            <v-card-title class="headline">{{ dialogTitle }}</v-card-title>
+            <v-card-text>{{ dialogText }}</v-card-text>
+            <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="green darken-1" text @click="dialog = false">Ok</v-btn>
+            </v-card-actions>
+        </v-card>        
+    </v-dialog>
   </div>
 </template>
 
@@ -73,6 +87,8 @@ export default {
         fechaPedido: String,
         OrderDetailsHeight: Number,
         defaultOrder: Array,
+        guerta: Boolean,
+        minimo: Number
     },
     data () {
       return {
@@ -82,6 +98,11 @@ export default {
           discount: '',
           delivery: '',
           ordersOpened: false,
+          checkOutText: 'Confirmar',
+          error: null,
+          dialog: false,
+          dialogTitle: '',
+          dialogText: ''
       }
     },
     computed: {
@@ -100,17 +121,16 @@ export default {
             let price = toEnglishNumber(this.orderSum) / 100 * toEnglishNumber(this.discount);
             return toSpanishNumber(parseFloat(price).toFixed(2));
         },
-        canCheckout: function(){      
+        canCheckout: function(){
             let total = 0;
             let cesta = false;
             this.order.forEach( product => {
                 total += ( toEnglishNumber(product.price) * product.quantity ); 
-                if( product.type == 'Cestas' ){
+                if( !this.guerta && (product.type == 'CESTAS' || product.type == 1 ) ){
                     cesta = true;
                 }
             });
-            // console.log(total)
-            return (cesta || parseFloat(total) > 20);
+            return (cesta || parseFloat(total) > this.minimo);
         }
     },
     methods: {
@@ -134,6 +154,43 @@ export default {
             let myBody = document.getElementsByTagName('body')[0];
             myBody.classList.toggle('orders-opened');
             this.$emit('ordersOpened', this.ordersOpened);
+        },
+        checkOut: function(){
+            let user = this.user;
+            let order = this.order;
+            let envio = {
+                "token": "",
+                "usuario": "",
+                "fechaPedido": "",
+                "mdoLineasPedidoWeb": []
+            };
+            envio.token = localStorage.token;
+            envio.usuario = user.codigo;
+            envio.fechaPedido = this.fechaPedido.trim();
+            for(let i=0; i<order.length; i++ ){
+                let producto = order[i];
+                let prod = {
+                    'cantidad': producto.quantity.toString(),
+                    'codigoProducto': producto.codigo.toString(),
+                    'familiaProducto': producto.familia.toString(),
+                    'importe': (producto.quantity * producto.price).toString(),
+                    'precio': producto.price
+                }
+                envio.mdoLineasPedidoWeb.push(prod);
+                
+            }
+            
+            this.$http.post('/grabarpedido', envio ).then( response => this.proccessCheckOut(response.data) )
+            .catch( error => this.errorCheckOut(error) );
+        },
+        proccessCheckOut: function(){
+            this.dialogTitle = '¡Perfecto!';
+            this.dialogText = 'Hemos procesado correctamente tus cambios. ¡Muchas gracias!'
+            this.dialog = true;
+        },
+        errorCheckOut: function (error){
+            this.error = 'Error al grabar el pedido';
+            console.log(error)
         }
         
     },
@@ -169,7 +226,6 @@ function calcHeightOrders(offset = 150){
     let elementHeight = document.querySelector('.order-details-container').offsetHeight;
     let orderDetails = document.getElementById('order-details');
     let orderDetailsHeight = orderDetails.offsetHeight;
-    // console.log('elementHeight = ' + elementHeight + '  \n orderDetailsHeight = ' + orderDetailsHeight + ' \n window.innerHeight = ' + orderDetailsHeight);
     if( (elementHeight + offset > orderDetailsHeight) || (elementHeight + offset > window.innerHeight) ){
             orderDetails.classList.add('scrollbar');
     }else{

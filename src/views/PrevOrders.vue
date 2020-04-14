@@ -2,41 +2,42 @@
   <div class="content-wrapper">
     <div id="order" class="col-12 col-md-6 col-lg-8">
       <p class="intro">
-        A continuación puedes ver un listado con todos los pedidos realizados hasta la fecha. Seleccione un pedido para consultar sus detalles, o para descargar en formato PDF.      </p>
-        <div class="products-tab">
-          <v-tabs
-          v-model="tab"
-          >
-          <v-tab
-              v-for="order in orders"
-              :key="order.tab"
-          >
-              {{ order.tab }} 
-          </v-tab>
-          </v-tabs>
+        A continuación puedes ver un listado con todos los pedidos realizados hasta la fecha. Seleccione un pedido para consultar sus detalles, o para descargar en formato PDF.      
+      </p>
+      <div class="products-tab">
+        <v-tabs
+        v-model="tab"
+        >
+        <v-tab
+            v-for="order in orders"
+            :key="order.tab"
+        >
+            {{ order.tab }} 
+        </v-tab>
+        </v-tabs>
 
-          <v-tabs-items v-model="tab">
-              <v-tab-item
-                  v-for="order in orders"
-                  :key="order.tab"
-              >
-               <v-card flat>
-                  <v-card-text class="d-flex flex-wrap ">
-                    <ul id="order-list" v-if="order.fechas">
-                      <li v-for="order in visiblePages" :key="order.fecha">
-                        <div class="order-selector" @click="/*currentOrder = order.fecha;*/ prevOrder(order.fecha); calcHeightOrders();" v-bind:class="{ active: isOrderListItemActive(order.fecha) }">{{ order.fecha }}</div>
-                      </li>
-                    </ul>
-                    <v-pagination
-                      v-model="page"
-                      :length="Math.ceil(order.fechas.length/perPage)"
-                      v-if="order.fechas && order.fechas.length > perPage"
-                    ></v-pagination>
-                  </v-card-text>
-               </v-card>
-              </v-tab-item>
-          </v-tabs-items>
-        </div>
+        <v-tabs-items v-model="tab">
+            <v-tab-item
+                v-for="order in orders"
+                :key="order.tab"
+            >
+              <v-card flat>
+                <v-card-text class="d-flex flex-wrap ">
+                  <ul id="order-list" v-if="order.fechas">
+                    <li v-for="pedido in visiblePages" :key="pedido.fecha">
+                      <div class="order-selector" @click="/*currentOrder = order.fecha;*/ prevOrder(pedido.fecha); calcHeightOrders();" v-bind:class="{ active: isOrderListItemActive(pedido.fecha) }">{{ pedido.fecha }}</div>
+                    </li>
+                  </ul>
+                  <v-pagination
+                    v-model="page"
+                    :length="Math.ceil(order.fechas.length/perPage)"
+                    v-if="order.fechas && order.fechas.length > perPage"
+                  ></v-pagination>
+                </v-card-text>
+              </v-card>
+            </v-tab-item>
+        </v-tabs-items>
+      </div>
     </div>
     <div id="order-details" class="col-12 col-md-6 col-lg-4">
       <div class="order-details-container container" >
@@ -46,8 +47,8 @@
             Los datos aquí reflejados son solamente de consulta.
         </p>
         <div id="client-details">
-            <h3>Pedro López Andradas</h3>
-            <h3>Zona de reparto: Puente de Vallecas</h3>
+            <h3></h3>
+            <h3></h3>
             <h3><strong>Fecha del pedido: {{ currentOrder.fecha }}</strong></h3>
         </div>
         <div id="order-details-table"  >
@@ -61,11 +62,13 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="product in currentOrder.order.products" :key="product.nombre">
-                        <td class="col-name">{{ product.nombre }}</td> 
+                    <tr v-for="product in currentOrder.order.products" :key="product.idProducto">
+                      <template v-if="product.idProducto">
+                        <td class="col-name">{{ product.nombreProducto }}</td> 
                         <td>{{ product.precio }}€</td>
                         <td>{{ product.cantidad }}</td>
                         <td>{{ rowTotal(product.precio, product.cantidad) }}€</td> 
+                      </template>
                     </tr> 
                 </tbody>
             </table>
@@ -123,343 +126,27 @@ export default {
         { 
           tab: 'Pedidos anteriores', 
           fechas: null,
-          content: [
-            {
-              id: '1121',
-              fecha: '23 de enero de 2020',
-              order: {
-                descuento: 5,
-                envio: '4,50',
-                total: '20,50',
-                products: [
-                  {
-                    nombre: 'Cesta de verdura variada 4kg',
-                    precio: '10,50',
-                    cantidad: '2',
-                  },
-                  {
-                    nombre: 'Pimientos bla bla bla',
-                    precio: '10,50',
-                    cantidad: '2',
-                  },
-                  {
-                    nombre: 'Manzanas bleblelbe',
-                    precio: '10,50',
-                    cantidad: '2',
-                  },
-                ],
-              }
-            },
-            {
-              id: '1120',
-              fecha: '16 de enero de 2020',
-              order: {
-                products: [
-                  {
-                    nombre: 'Cesta de verdura variada 4kg',
-                    precio: '10,50',
-                    cantidad: '2',
-                  },
-                ],
-                descuento: 5,
-                envio: '4,50',
-                total: '20,50'
-              }
-            },
-            {
-              id: '1119',
-              fecha: '09 de enero de 2020',
-              order: {
-                products: [
-                  {
-                    nombre: 'Cesta de verdura variada 4kg',
-                    precio: '10,50',
-                    cantidad: '2',
-                  },
-                  {
-                    nombre: 'Cesta de verdura variada 4kg',
-                    precio: '10,50',
-                    cantidad: '2',
-                  },
-                ],
-                descuento: 5,
-                envio: '4,50',
-                total: '20,50'
-              }
-            },
-            {
-              id: '1118',
-              fecha: '26 de diciembre de 2019',
-              order: {
-                products: [
-                  {
-                    nombre: 'Cesta de verdura variada 4kg',
-                    precio: '10,50',
-                    cantidad: '2',
-                  },
-                  {
-                    nombre: 'Cesta de verdura variada 4kg',
-                    precio: '10,50',
-                    cantidad: '2',
-                  },
-                  {
-                    nombre: 'Cesta de verdura variada 4kg',
-                    precio: '10,50',
-                    cantidad: '2',
-                  },
-                ],
-                descuento: 5,
-                envio: '4,50',
-                total: '20,50'
-              }
-            },
-            {
-              id: '1117',
-              fecha: '19 de diciembre de 2019',
-              order: {
-                products: [
-                  {
-                    nombre: 'Cesta de verdura variada 4kg',
-                    precio: '10,50',
-                    cantidad: '2',
-                  },
-                ],
-                descuento: 5,
-                envio: '4,50',
-                total: '20,50'
-              }
-            },
-            {
-              id: '1116',
-              fecha: '12 de diciembre de 2019',
-              order: {
-                products: [
-                  {
-                    nombre: 'Cesta de verdura variada 4kg',
-                    precio: '10,50',
-                    cantidad: '2',
-                  },
-                  {
-                    nombre: 'Cesta de verdura variada 4kg',
-                    precio: '10,50',
-                    cantidad: '2',
-                  },
-                ],
-                descuento: 5,
-                envio: '4,50',
-                total: '20,50'
-              }
-            },
-            {
-              id: '1115',
-              fecha: '05 de diciembre de 2019',
-              order: {
-                products: [
-                  {
-                    nombre: 'Cesta de verdura variada 4kg',
-                    precio: '10,50',
-                    cantidad: '2',
-                  },
-                  {
-                    nombre: 'Cesta de verdura variada 4kg',
-                    precio: '10,50',
-                    cantidad: '2',
-                  },
-                  {
-                    nombre: 'Cesta de verdura variada 4kg',
-                    precio: '10,50',
-                    cantidad: '2',
-                  },
-                ],
-                descuento: 5,
-                envio: '4,50',
-                total: '20,50'
-              }
-            },
-            {
-              id: '1114',
-              fecha: '23 de enero de 2020',
-              order: {
-                products: [
-                  {
-                    nombre: 'Cesta de verdura variada 4kg',
-                    precio: '10,50',
-                    cantidad: '2',
-                  },
-                  {
-                    nombre: 'Pimientos bla bla bla',
-                    precio: '10,50',
-                    cantidad: '2',
-                  },
-                  {
-                    nombre: 'Manzanas bleblelbe',
-                    precio: '10,50',
-                    cantidad: '2',
-                  },
-                ],
-                descuento: 5,
-                envio: '4,50',
-                total: '20,50'
-              }
-            },
-            {
-              id: '1113',
-              fecha: '16 de enero de 2020',
-              order: {
-                products: [
-                  {
-                    nombre: 'Cesta de verdura variada 4kg',
-                    precio: '10,50',
-                    cantidad: '2',
-                  },
-                ],
-                descuento: 5,
-                envio: '4,50',
-                total: '20,50'
-              }
-            },
-            {
-              id: '1112',
-              fecha: '09 de enero de 2020',
-              order: {
-                products: [
-                  {
-                    nombre: 'Cesta de verdura variada 4kg',
-                    precio: '10,50',
-                    cantidad: '2',
-                  },
-                  {
-                    nombre: 'Cesta de verdura variada 4kg',
-                    precio: '10,50',
-                    cantidad: '2',
-                  },
-                ],
-                descuento: 5,
-                envio: '4,50',
-                total: '20,50'
-              }
-            },
-            {
-              id: '1111',
-              fecha: '26 de diciembre de 2019',
-              order: {
-                products: [
-                  {
-                    nombre: 'Cesta de verdura variada 4kg',
-                    precio: '10,50',
-                    cantidad: '2',
-                  },
-                  {
-                    nombre: 'Cesta de verdura variada 4kg',
-                    precio: '10,50',
-                    cantidad: '2',
-                  },
-                  {
-                    nombre: 'Cesta de verdura variada 4kg',
-                    precio: '10,50',
-                    cantidad: '2',
-                  },
-                ],
-                descuento: 5,
-                envio: '4,50',
-                total: '20,50'
-              }
-            },
-            {
-              id: '1110',
-              fecha: '19 de diciembre de 2019',
-              order: {
-                products: [
-                  {
-                    nombre: 'Cesta de verdura variada 4kg',
-                    precio: '10,50',
-                    cantidad: '2',
-                  },
-                ],
-                descuento: 5,
-                envio: '4,50',
-                total: '20,50'
-              }
-            },
-            {
-              id: '1109',
-              fecha: '12 de diciembre de 2019',
-              order: {
-                products: [
-                  {
-                    nombre: 'Cesta de verdura variada 4kg',
-                    precio: '10,50',
-                    cantidad: '2',
-                  },
-                  {
-                    nombre: 'Cesta de verdura variada 4kg',
-                    precio: '10,50',
-                    cantidad: '2',
-                  },
-                ],
-                descuento: 5,
-                envio: '4,50',
-                total: '20,50'
-              }
-            },
-            {
-              id: '1108',
-              fecha: '05 de diciembre de 2019',
-              order: {
-                products: [
-                  {
-                    nombre: 'Cesta de verdura variada 4kg',
-                    precio: '10,50',
-                    cantidad: '2',
-                  },
-                  {
-                    nombre: 'Cesta de verdura variada 4kg',
-                    precio: '10,50',
-                    cantidad: '2',
-                  },
-                  {
-                    nombre: 'Cesta de verdura variada 4kg',
-                    precio: '10,50',
-                    cantidad: '2',
-                  },
-                ],
-                descuento: 5,
-                envio: '4,50',
-                total: '20,50'
-              }
-            },
-          ]
+          content: []
         },
       ],
       currOrder: null,
-      currentOrder: 
+      currentOrder: {
+        id: '',
+        fecha: 'XX/XX/XXXX',
+        order: {
+          descuento: 0,
+          envio: 0,
+          total: 0,
+          products: [
             {
-              id: '1121',
-              fecha: '23 de enero de 2020',
-              order: {
-                descuento: 5,
-                envio: '4,50',
-                total: '20,50',
-                products: [
-                  {
-                    nombre: 'Cesta de verdura variada 4kg',
-                    precio: '10,50',
-                    cantidad: '2',
-                  },
-                  {
-                    nombre: 'Pimientos bla bla bla',
-                    precio: '10,50',
-                    cantidad: '2',
-                  },
-                  {
-                    nombre: 'Manzanas bleblelbe',
-                    precio: '10,50',
-                    cantidad: '2',
-                  },
-                ],
-              }
+              nombreProducto: '',
+              precio: '',
+              cantidad: '',
+              idProducto: 0,
             },
-      
+          ],
+        }
+      },      
     }
   },
   // mounted: function(){
@@ -490,12 +177,15 @@ export default {
         this.$emit('ordersOpened', this.ordersOpened);
     },
     setData ( data ){
-      this.orders[0].fechas = data.mdoFechasPedidosAnterior;
-      console.log(this.orders);
+        this.orders[0].fechas = data.mdoFechasPedidosAnterior;
+        if(this.orders[0].fechas[0].fecha){
+          this.prevOrder(this.orders[0].fechas[0].fecha)
+        }
     },
     setPrevOrder (data){
-      this.currOrder = data;
-      console.log(this.currOrder);
+      // console.log(data);
+      this.currentOrder.order.products = data.articulos;
+      this.currentOrder.fecha = data.fecha;
     },
     prevOrder (date){      
       let token = localStorage.token;
@@ -517,7 +207,9 @@ export default {
     orderSum: function(){          
         let total = 0;
         this.currentOrder.order.products.forEach( product => {
+          if(product.precio){
             total += ( toEnglishNumber(product.precio) * product.cantidad ); 
+          }
         });
         return toSpanishNumber(total.toFixed(2));
     },

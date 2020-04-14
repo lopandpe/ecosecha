@@ -41,7 +41,7 @@ export default {
         )
     },
     loginSuccessful (req) {
-      console.log(req);
+      // console.log(req);
       if('mensaje' in req.data &&  req.data.mensaje == 'Reset Password'){
         this.$router.replace(this.$route.query.redirect || '/resetpassword');
         return;

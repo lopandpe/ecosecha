@@ -1,7 +1,7 @@
 <template v-if="parseInt(precio) > 0">
     <v-card class="product" max-width="180">
         <!-- <v-img class="align-end" height="95px" :src="'http://ecosecha.vservers.es' + image">                 -->
-        <v-img class="align-end" height="95px" :src="imagen">                
+        <v-img class="align-end" height="95px" :src="imagen" @error="imageLoadError">                
             <v-card-text class="product-price">{{ precio }}€</v-card-text>
         </v-img>
         <v-card-title class="product-title">{{ name }}</v-card-title>
@@ -29,7 +29,9 @@ export default {
         'price',
         'image',
         'from',
-        'type'
+        'type',
+        'familia',
+        'codigo'
     ],
     components: {
     // ProductsTab
@@ -38,7 +40,7 @@ export default {
         return {
             precio: null,
             foo: 0,
-            imagen: null
+            imagen: "/ecosecha/default.jpg"
         }
     },  
     methods: {
@@ -56,27 +58,31 @@ export default {
                     name: this.name,
                     price: this.price,
                     quantity: this.foo,
-                    type: this.type
+                    type: this.type,
+                    codigo: this.codigo,
+                    familia: this.familia
                 }
+                // console.log(data);
                 this.$emit('addedProduct', data);
                 this.foo = 0;
             }
             
+        },
+        imageLoadError(){
+            this.imagen = "/ecosecha/default.jpg";
         }
     },
     mounted (){
-        // console.log(this.image);
         this.precio = toSpanishNumber(this.price);
+        
         let foto = this.image;
-        foto = this.image.replace('c:/products/', '../img/');
-        foto = this.image.replace('/products/', '../img/');
+        foto = foto.replace('c:/products/', '/ecosecha/img/');
+        foto = foto.replace('/products/', '/ecosecha/img/');
         let imageExists = require('image-exists');
-        console.log('Foto1: ' + foto);
         imageExists(foto, function(exists) {
-            // Then get league logo
+            // console.log(foto + ' -> ' + exists);
             if (!exists) {
-                foto = "../default.jpg";
-                console.log('Foto2: ' + foto);
+                foto = "/ecosecha/default.jpg";
             }
         });
         this.imagen = foto;

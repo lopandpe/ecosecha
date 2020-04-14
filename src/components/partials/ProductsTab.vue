@@ -17,7 +17,7 @@
         >
           <v-card flat>
             <v-card-text class="d-flex flex-wrap justify-center">
-              <Product v-for="product in item.content" :key="product.id" :name="product.descripcion" :price="product.precio" :image="product.rutaImagen" :id="product.id" :from="product.procedencia" :type="item.nombre"  @addedProduct="updateBasket"/>
+              <Product v-for="product in item.content" :key="product.id" :name="product.descripcion" :price="product.precio" :image="product.rutaImagen" :id="product.id" :from="product.procedencia" :type="item.nombre" :familia="product.familia" :codigo="product.codigo"  @addedProduct="updateBasket"/>
             </v-card-text>
           </v-card>
         </v-tab-item>
@@ -37,7 +37,7 @@ export default {
     },
     props: {
       products: Array,
-      familias: Array,
+      familias: Array
     },
     data () {
       return {
@@ -53,28 +53,33 @@ export default {
     mounted () {
       let items = [];   
       var positions = [];   
-      this.familias.forEach(function(familia){
-        if(!positions.includes('fam' + familia.codigo)){
-          positions.push('fam' + familia.codigo);
+      for(let i = 0; i < this.familias.length; i++){
+        if(!this.despensa){
+          if(this.familias[i].nombre == "DESPENSA"){
+            continue;
+          }
         }
-        let pos = positions.indexOf('fam' + familia.codigo);
-        items[pos] = familia;
+        if(!positions.includes('fam' + this.familias[i].codigo)){
+          positions.push('fam' + this.familias[i].codigo);
+        }
+        let pos = positions.indexOf('fam' + this.familias[i].codigo);
+        items[pos] = this.familias[i];
         items[pos]['content'] = [];
-      });
+      }
       this.products.forEach(function(product){
         let pos = positions.indexOf('fam' + product.familia);
-        if(pos >= 0)
+        if(pos >= 0 && (product.precio > 0)){
           items[pos]['content'].push(product);
+        }
       });
       this.items = items.sort(function(a, b){
-        let nameA=a.nombre.toLowerCase(), nameB=b.nombre.toLowerCase()
-        if (nameA < nameB)
-            return 1 
+        let nameA=a.codigo, nameB=b.codigo
         if (nameA > nameB)
+            return 1 
+        if (nameA < nameB)
             return -1
         return 0
       });
-      console.log(this.items)
     }
 }
 
