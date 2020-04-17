@@ -17,7 +17,7 @@
         >
           <v-card flat>
             <v-card-text class="d-flex flex-wrap justify-center">
-              <Product v-for="product in item.content" :key="product.id" :name="product.descripcion" :price="product.precio" :image="product.rutaImagen" :id="product.id" :from="product.procedencia" :type="item.nombre" :familia="product.familia" :codigo="product.codigo"  @addedProduct="updateBasket"/>
+              <Product v-for="product in item.content" :key="product.id" :name="product.descripcion" :price="product.precio" :image="product.rutaImagen" :id="product.id" :from="product.procedencia" :type="item.nombre" :familia="product.familia" :codigo="product.codigo" :validation="validation" @addedProduct="updateBasket"/>
             </v-card-text>
           </v-card>
         </v-tab-item>
@@ -37,7 +37,9 @@ export default {
     },
     props: {
       products: Array,
-      familias: Array
+      familias: Array,
+      despensa: Number,
+      validation: Boolean
     },
     data () {
       return {
@@ -54,7 +56,7 @@ export default {
       let items = [];   
       var positions = [];   
       for(let i = 0; i < this.familias.length; i++){
-        if(!this.despensa){
+        if(this.despensa == 0){
           if(this.familias[i].nombre == "DESPENSA"){
             continue;
           }

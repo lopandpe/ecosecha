@@ -165,7 +165,7 @@ export default {
         return toSpanishNumber(total.toFixed(2));
     },
     rowTotal(price, quantity){
-        return toSpanishNumber(toEnglishNumber(price) * quantity);
+        return toSpanishNumber((toEnglishNumber(price) * quantity).toFixed(2));
     },
     calcHeightOrders(){
         calcHeightOrders(300);
@@ -183,7 +183,7 @@ export default {
         }
     },
     setPrevOrder (data){
-      // console.log(data);
+      console.log(data);
       this.currentOrder.order.products = data.articulos;
       this.currentOrder.fecha = data.fecha;
     },
@@ -206,12 +206,15 @@ export default {
     },
     orderSum: function(){          
         let total = 0;
-        this.currentOrder.order.products.forEach( product => {
-          if(product.precio){
-            total += ( toEnglishNumber(product.precio) * product.cantidad ); 
-          }
-        });
-        return toSpanishNumber(total.toFixed(2));
+        // if('order' in this.currentOrder){
+          this.currentOrder.order.products.forEach( product => {
+            if(product.precio){
+              total += ( toEnglishNumber(product.precio) * product.cantidad ); 
+            }
+          });
+          return toSpanishNumber(total.toFixed(2));
+        // }
+        // return 'error';
     },
     discountTotal: function(){
         let price = toEnglishNumber(this.orderSum) / 100 * toEnglishNumber(this.currentOrder.order.descuento);

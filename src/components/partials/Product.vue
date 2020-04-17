@@ -12,7 +12,7 @@
                 <v-text-field class="product-quantity" v-model="foo" value="0" type="text" min="0" disabled></v-text-field>
                 <v-btn class="product-control" text small  v-on:click="increment()">+</v-btn>
             </div>
-            <v-btn text small class="product-add-to-cart bg-primary" v-on:click="submit">Añadir</v-btn>
+            <v-btn text small class="product-add-to-cart bg-primary" v-on:click="submit" :disabled="validation">Añadir</v-btn>
         </v-card-actions>
     </v-card>
 </template>
@@ -31,7 +31,8 @@ export default {
         'from',
         'type',
         'familia',
-        'codigo'
+        'codigo',
+        'validation'
     ],
     components: {
     // ProductsTab

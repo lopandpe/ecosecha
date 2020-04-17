@@ -8,7 +8,7 @@
         Configuración del pedido para el {{ fechaPedido }}. Recuerda que todo pedido debe incluir como mínimo 20 euros en productos. Cualquier duda que tengas, ponte en contacto con nosotr@s en <a  :href="`mailto:${mailGuerta}`" target="_blank">{{ mailGuerta }}</a>
       </p>
       <h3 v-if="validation" class="red darken-2 text-center"><span class="white--text">{{ validation }}</span></h3>
-      <ProductsTab @updateBasket="updateBasket" :products="products" :familias="familias" :despensa="despensa" v-if="products"/>
+      <ProductsTab @updateBasket="updateBasket" :products="products" :familias="familias" :despensa="despensa" :validation="validation" v-if="products"/>
     </div>
     <div id="order-details" class="col-12 col-md-6 col-lg-4">
       <OrderDetails ref="orderDetails" :order="order" :user="user" :fechaPedido="fechaPedido" :guerta="guerta" :minimo="minimo" v-if="user && !validation"/>
@@ -52,7 +52,9 @@ export default {
   methods: {
       updateBasket ( product ){
         let prod = this.order.find( el => {
-                return el.id === product.id;
+              console.log(el);
+              console.log(product);
+                return el.id === product.codigoProducto;
             });
         if(prod){
             prod.quantity += parseInt(product.quantity);
@@ -65,12 +67,13 @@ export default {
         
       },
       setData ( data ){
+        console.log(data);
         this.user = data.mdoConsumidor;
         this.minimo = parseFloat(data.mdoConfiguracion.minimo.trim());
         this.mailEcosecha = data.mdoConsumidor.cuentasCorreo[0];
         this.mailGuerta = data.mdoConsumidor.cuentasCorreo[1];
         this.fechaPedido = data.mdoConfiguracion.fecha;
-        this.despensa = data.mdoConsumidor.pedidoCarta;
+        this.despensa = data.mdoConsumidor.pedidosCarta;
         this.setProductsList(data);
         this.defaultOrderCalc ( data.mdoPedidosExtras );
         this.validation = data.mdoConsumidor.validacion;
@@ -84,7 +87,7 @@ export default {
                 printed = true;
               }
               let producto = {
-                    id: order.articulos[i].idProducto,
+                    id: order.articulos[i].codigoProducto,
                     name: order.articulos[i].nombreProducto,
                     price: order.articulos[i].precio,
                     quantity: order.articulos[i].cantidad,
@@ -126,7 +129,7 @@ export default {
         let token = localStorage.token;
         let tokenDecoded = jwt_decode(token);
         let userId = tokenDecoded.jti;
-
+        console.log(tokenDecoded);
         if(tokenDecoded.distribution == 1){
           this.guerta = true;
         }

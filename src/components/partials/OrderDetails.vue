@@ -169,7 +169,9 @@ export default {
             envio.fechaPedido = this.fechaPedido.trim();
             for(let i=0; i<order.length; i++ ){
                 let producto = order[i];
+                console.log(producto);
                 let prod = {
+                    'nombreProducto': producto.name,
                     'cantidad': producto.quantity.toString(),
                     'codigoProducto': producto.codigo.toString(),
                     'familiaProducto': producto.familia.toString(),
