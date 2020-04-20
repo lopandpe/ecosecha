@@ -88,7 +88,8 @@ export default {
         OrderDetailsHeight: Number,
         defaultOrder: Array,
         guerta: Boolean,
-        minimo: Number
+        minimo: Number,
+        basketUpdated: Boolean
     },
     data () {
       return {
@@ -102,7 +103,8 @@ export default {
           error: null,
           dialog: false,
           dialogTitle: '',
-          dialogText: ''
+          dialogText: '',
+          rowDeleted: false
       }
     },
     computed: {
@@ -122,6 +124,11 @@ export default {
             return toSpanishNumber(parseFloat(price).toFixed(2));
         },
         canCheckout: function(){
+            console.log('BasketUpdated: ' + this.basketUpdated)
+            console.log('rowDeleted: ' + this.rowDeleted)
+            if(!this.basketUpdated && !this.rowDeleted){
+                return false;
+            }
             let total = 0;
             let cesta = false;
             this.order.forEach( product => {
@@ -130,11 +137,13 @@ export default {
                     cesta = true;
                 }
             });
-            return (cesta || parseFloat(total) > this.minimo);
+            return (cesta || parseFloat(total) >= this.minimo);
         }
     },
     methods: {
         deleteRow (id) {
+            this.rowDeleted = true;
+            console.log(this.orderChanged)
             let pos = this.order.map(function(e) { 
                 return e.id; 
             }).indexOf(id);

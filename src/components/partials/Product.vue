@@ -12,7 +12,7 @@
                 <v-text-field class="product-quantity" v-model="foo" value="0" type="text" min="0" disabled></v-text-field>
                 <v-btn class="product-control" text small  v-on:click="increment()">+</v-btn>
             </div>
-            <v-btn text small class="product-add-to-cart bg-primary" v-on:click="submit" :disabled="validation">Añadir</v-btn>
+            <v-btn text small class="product-add-to-cart bg-primary" v-on:click="submit" :disabled="!canSubmit()">Añadir</v-btn>
         </v-card-actions>
     </v-card>
 </template>
@@ -41,7 +41,7 @@ export default {
         return {
             precio: null,
             foo: 0,
-            imagen: "/ecosecha/default.jpg"
+            imagen: "/default.jpg"
         }
     },  
     methods: {
@@ -70,20 +70,25 @@ export default {
             
         },
         imageLoadError(){
-            this.imagen = "/ecosecha/default.jpg";
+            this.imagen = "/default.jpg";
+        },
+        canSubmit(){
+            if(this.foo > 0 && !this.validation){
+                return true;
+            }
         }
     },
     mounted (){
         this.precio = toSpanishNumber(this.price);
         
         let foto = this.image;
-        foto = foto.replace('c:/products/', '/ecosecha/img/');
-        foto = foto.replace('/products/', '/ecosecha/img/');
+        foto = foto.replace('c:/products/', '/img/');
+        foto = foto.replace('/products/', '/img/');
         let imageExists = require('image-exists');
         imageExists(foto, function(exists) {
             // console.log(foto + ' -> ' + exists);
             if (!exists) {
-                foto = "/ecosecha/default.jpg";
+                foto = "/default.jpg";
             }
         });
         this.imagen = foto;

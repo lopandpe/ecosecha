@@ -11,7 +11,7 @@
       <ProductsTab @updateBasket="updateBasket" :products="products" :familias="familias" :despensa="despensa" :validation="validation" v-if="products"/>
     </div>
     <div id="order-details" class="col-12 col-md-6 col-lg-4">
-      <OrderDetails ref="orderDetails" :order="order" :user="user" :fechaPedido="fechaPedido" :guerta="guerta" :minimo="minimo" v-if="user && !validation"/>
+      <OrderDetails ref="orderDetails" :order="order" :user="user" :fechaPedido="fechaPedido" :guerta="guerta" :minimo="minimo" :basketUpdated="basketUpdated" v-if="user && !validation"/>
     </div>
   </div>
 </template>
@@ -46,21 +46,24 @@ export default {
       minimo: null,
       mailEcosecha: null,
       mailGuerta: null,
-      depensa: 1
+      depensa: 1,
+      basketUpdated: false
     } 
   },
   methods: {
-      updateBasket ( product ){
+      updateBasket ( product, $basketUpdated = true ){
+        // console.log(this.order);
         let prod = this.order.find( el => {
-              console.log(el);
-              console.log(product);
-                return el.id === product.codigoProducto;
+              // console.log(el);
+              // console.log(product);
+                return el.id === product.id;
             });
         if(prod){
             prod.quantity += parseInt(product.quantity);
         }else{
             this.order.push(product);
         }
+        this.basketUpdated = $basketUpdated;
         setTimeout(() => {
           this.calcHeightOrders();
         }, 300);
@@ -76,7 +79,7 @@ export default {
         this.despensa = data.mdoConsumidor.pedidosCarta;
         this.setProductsList(data);
         this.defaultOrderCalc ( data.mdoPedidosExtras );
-        this.validation = data.mdoConsumidor.validacion;
+        this.validation = data.mdoConsumidor.validacion == 'Ok';
       },
       defaultOrderCalc ( order ){
         if(Array.isArray(order.articulos) && order.articulos.length){
@@ -87,7 +90,7 @@ export default {
                 printed = true;
               }
               let producto = {
-                    id: order.articulos[i].codigoProducto,
+                    id: order.articulos[i].idProducto,
                     name: order.articulos[i].nombreProducto,
                     price: order.articulos[i].precio,
                     quantity: order.articulos[i].cantidad,
@@ -95,7 +98,7 @@ export default {
                     familia: order.articulos[i].familiaProducto,
                     codigo: order.articulos[i].codigoProducto
                 };
-              this.updateBasket(producto);
+              this.updateBasket(producto, false);
             }
           } 
         }
@@ -129,7 +132,7 @@ export default {
         let token = localStorage.token;
         let tokenDecoded = jwt_decode(token);
         let userId = tokenDecoded.jti;
-        console.log(tokenDecoded);
+        // console.log(tokenDecoded);
         if(tokenDecoded.distribution == 1){
           this.guerta = true;
         }

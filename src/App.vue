@@ -97,7 +97,9 @@
         this.loader = false;
         return response;
       }, (error) => {
+        delete localStorage.token
         this.loader = false;
+        this.$router.push('/?redirect=' + this.$route.path)
         return Promise.reject(error);
       });
     },
