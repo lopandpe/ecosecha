@@ -66,13 +66,16 @@
     },
     methods: {
       checkUserCredentials(){ 
+        // console.log(this.$route.path);
         if (localStorage.token){
             let tokenDecoded = jwt_decode(localStorage.token);
             this.guerta = tokenDecoded.distribution == 1;
         }       
         let allowedRoutes = ['/', '/remember', '/resetpassword'];
         if (!localStorage.token && !allowedRoutes.includes( this.$route.path ) ) {
-          this.$router.push('/?redirect=' + this.$route.path)
+          if(this.$route.path != '/'){
+            this.$router.push('/?redirect=' + this.$route.path.replace('/', ''));
+          }
         }else if (localStorage.token){
           this.logged = true;
         }
@@ -97,9 +100,14 @@
         this.loader = false;
         return response;
       }, (error) => {
+        // console.log('Error!');
         delete localStorage.token
         this.loader = false;
-        this.$router.push('/?redirect=' + this.$route.path)
+        let allowedRoutes = ['/', '/remember', '/resetpassword'];
+        if( !allowedRoutes.includes( this.$route.path ) ){
+          let path = '/?redirect=' + this.$route.path.replace('/', '');        
+          this.$router.push(path);
+        }
         return Promise.reject(error);
       });
     },

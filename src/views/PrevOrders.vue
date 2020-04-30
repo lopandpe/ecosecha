@@ -63,7 +63,7 @@
                 </thead>
                 <tbody>
                     <tr v-for="product in currentOrder.order.products" :key="product.idProducto">
-                      <template v-if="product.idProducto">
+                      <template v-if="product.idProducto && product.precio">
                         <td class="col-name">{{ product.nombreProducto }}</td> 
                         <td>{{ product.precio }}€</td>
                         <td>{{ product.cantidad }}</td>
@@ -78,21 +78,30 @@
                 <span class="order-summary-concept">Suma pedido</span>
                 <span class="order-summary-price">{{ orderSum }}€</span>
             </div>
-            <div class="fila" id="order-summary-discount" v-if="currentOrder.order.descuento != 0">
-                <span class="order-summary-concept">Descuento de socio ({{ currentOrder.order.descuento }}%)</span>
-                <span class="order-summary-price">-{{ discountTotal }}€</span>
+            <div class="fila" id="order-summary-impPagoReparto" v-if="currentOrder.order.impPagoReparto != '0,00' ">
+                <span class="order-summary-concept">Punto de reparto</span>
+                <span class="order-summary-price">{{ currentOrder.order.impPagoReparto }}€</span>
             </div>
-            <div class="fila" id="order-summary-delivery" v-if="currentOrder.order.envio != 0">
-                <span class="order-summary-concept">Coste reparto</span>
-                <span class="order-summary-price">{{ currentOrder.order.envio }}€</span>
+            <div class="fila" id="order-summary-impPreparacion" v-if="currentOrder.order.impPreparacion != '0,00' ">
+                <span class="order-summary-concept">Importe preparación</span>
+                <span class="order-summary-price">{{ currentOrder.order.impPreparacion }}€</span>
+            </div>
+            <div class="fila" id="order-summary-impRepartoDomi" v-if="currentOrder.order.impRepartoDomi != '0,00' ">
+                <span class="order-summary-concept">Reparto</span>
+                <span class="order-summary-price">{{ currentOrder.order.impRepartoDomi }}€</span>
+            </div>
+            <div class="fila" id="order-summary-suplemento" v-if="currentOrder.order.suplemento != '0,00' ">
+                <span class="order-summary-concept">Suplemento</span>
+                <span class="order-summary-price">{{ currentOrder.order.suplemento }}€</span>
             </div>
         </div>
         <div id="order-details-footer">
             <div id="order-total">
-                <span v-if="currentOrder.order.products.length ">Total: {{ total() }}€</span>
+                <span v-if="currentOrder.order.products.length">Total: {{ total() }}€</span>
             </div>
             <div id="order-footer-buttons" v-bind:class="{ 'show-checkout': ordersOpened}">
-                <!-- <v-btn text id="order-checkout" class="bg-primary hidden-sm" :disabled="!canCheckout">Confirmar</v-btn> -->
+                <!-- <v-btn text id="order-checkout" class="bg-primary hidden-sm" @click="download" v-if="currentOrder.order.total">Descargar PDF</v-btn> -->
+                <v-btn text id="order-checkout" class="bg-primary hidden-sm" @click="download" v-if="currentOrder.order.total != 0">Descargar PDF</v-btn>
                 <v-btn text id="order-show" class="bg-primary hidden-md-and-up" @click="toggleOrderDetails">Ver pedido</v-btn>
             </div>
         </div>
@@ -105,7 +114,8 @@
 // @ is an alias to /src
 // import ProductsTab from '@/components/partials/ProductsTab.vue'
 // import OrderDetails from '@/components/partials/OrderDetails.vue'
-
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 import jwt_decode from 'jwt-decode';
 
 export default {
@@ -116,6 +126,7 @@ export default {
   },    
   data () {
     return{
+      allData : null,
       page: 1,
       perPage: 20,
       tab: null,
@@ -134,9 +145,13 @@ export default {
         id: '',
         fecha: 'XX/XX/XXXX',
         order: {
+          impPagoReparto: 0, 
+          impPreparacion: 0, 
+          impRepartoDomi: 0, 
           descuento: 0,
           envio: 0,
           total: 0,
+          suplemento: 0,
           products: [
             {
               nombreProducto: '',
@@ -154,15 +169,19 @@ export default {
   // },
   methods: {
     isOrderListItemActive: function(orderItem){
-      return this.activeOrderListItem === orderItem;
+      return this.currentOrder.fecha === orderItem;
     },
     setOrderListItemActive: function(orderItem){
-      return this.activeOrderListItem = orderItem;
+      return this.currentOrder.fecha = orderItem;
     },
     total: function(){
-        let total = toEnglishNumber(this.orderSum) - toEnglishNumber(this.discountTotal) + toEnglishNumber(this.currentOrder.order.envio);
-        // console.log(total);
+      if(this.currentOrder.order.total != 0){
+        // console.log(this.currentOrder.order.total);
+        return toSpanishNumber( toEnglishNumber(this.currentOrder.order.total).toFixed(2) );
+      }else{
+        let total = toEnglishNumber(this.orderSum) + toEnglishNumber(this.currentOrder.order.impPagoReparto) + toEnglishNumber(this.currentOrder.order.impPreparacion) + toEnglishNumber(this.currentOrder.order.impRepartoDomi) + toEnglishNumber(this.currentOrder.order.suplemento);
         return toSpanishNumber(total.toFixed(2));
+      }
     },
     rowTotal(price, quantity){
         return toSpanishNumber((toEnglishNumber(price) * quantity).toFixed(2));
@@ -177,13 +196,19 @@ export default {
         this.$emit('ordersOpened', this.ordersOpened);
     },
     setData ( data ){
-        this.orders[0].fechas = data.mdoFechasPedidosAnterior;
-        if(this.orders[0].fechas[0].fecha){
-          this.prevOrder(this.orders[0].fechas[0].fecha)
-        }
+      this.allData = data;
+      this.orders[0].fechas = data.mdoFechasPedidosAnterior;
+      if(this.orders[0].fechas[0].fecha){
+        this.prevOrder(this.orders[0].fechas[0].fecha)
+      }
     },
     setPrevOrder (data){
       console.log(data);
+      this.currentOrder.order.impPagoReparto = toSpanishNumber(data.impPagoReparto);
+      this.currentOrder.order.impPreparacion = toSpanishNumber(data.impPreparacion);
+      this.currentOrder.order.impRepartoDomi = toSpanishNumber(data.impRepartoDomi);
+      this.currentOrder.order.suplemento = toSpanishNumber(data.suplemento);
+      this.currentOrder.order.total = toSpanishNumber(data.totalOrden);
       this.currentOrder.order.products = data.articulos;
       this.currentOrder.fecha = data.fecha;
     },
@@ -198,6 +223,66 @@ export default {
         fechaPedidoAnterior: date
       }).then( response => this.setPrevOrder(response.data) )
         .catch( error => console.log(error) );
+    },
+    download(){      
+      let empresa = this.allData.mdoConfiguracion;
+
+      let cliente = this.allData.mdoConsumidor;
+      let logo = '';
+      if(cliente.repartoDomicilio){
+        logo = require('@/assets/guerta.png');
+      }else{
+        logo = require('@/assets/ecosecha.png');
+      }
+      // console.log(this.currentOrder);
+
+      let htmlEmpresa = '<div id="company"> <h2 class="name">' + empresa.nombreEmpresa + '</h2> <div>' + empresa.telefonoEmpresa + '</div> <div>' + empresa.direccionEmpresa + '</div>  <div>' + empresa.cifEmpresa + '</div> <div><a href="mailto:' + empresa.cuentaCorreo + '">' + empresa.cuentaCorreo + '</a></div> </div>';
+
+
+      let productos = this.currentOrder.order.products;
+      let tablaProductos = '';
+      let counter = 1;
+      let orderSum = 0;
+      productos.forEach(function( producto){
+        if(producto.precio){
+          tablaProductos += '<tr> <td class="no">' + counter + '</td> <td class="desc">' + producto.nombreProducto + '</td> <td class="unit">' + toSpanishNumber(producto.precio) + '€</td> <td class="qty">' + toSpanishNumber(producto.cantidad) + '</td> <td class="total">' + toSpanishNumber((toEnglishNumber(producto.precio) * producto.cantidad).toFixed(2))  + '€</td> </tr>';
+          orderSum += (producto.cantidad * producto.precio);
+          counter++;
+        }
+      });
+      let totales = '<tr><td colspan="2"></td> <td colspan="2">Subtotal</td> <td>' + toSpanishNumber(orderSum) + '€</td> </tr>';
+      if(this.currentOrder.order.impPagoReparto != '0,00' ){
+        totales += '<tr> <td colspan="2"></td> <td colspan="2">Punto de reparto</td> <td>' + toSpanishNumber(this.currentOrder.order.impPagoReparto) + '€</td> </tr>';
+      }
+      if(this.currentOrder.order.impPreparacion != '0,00' ){
+        totales += '<tr> <td colspan="2"></td> <td colspan="2">Importe preparación</td> <td>' + toSpanishNumber(this.currentOrder.order.impPreparacion) + '€</td> </tr>';
+      }
+      if(this.currentOrder.order.impRepartoDomi != '0,00' ){
+        totales += '<tr> <td colspan="2"></td> <td colspan="2">Reparto</td> <td>' + toSpanishNumber(this.currentOrder.order.impRepartoDomi) + '€</td> </tr>';
+      }
+      if(this.currentOrder.order.suplemento != '0,00' ){
+        totales += '<tr> <td colspan="2"></td> <td colspan="2">Suplemento</td> <td>' + toSpanishNumber(this.currentOrder.order.suplemento) + '€</td> </tr>';
+      }
+      totales += '<tr> <td colspan="2"></td> <td colspan="2">TOTAL</td> <td>' + this.total() + '€</td> </tr>';
+
+      let html = '<!DOCTYPE html><html lang="en"> <head> <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> <title>Example 2</title> <style> .clearfix:after { content: ""; display: table; clear: both; } a { color: #0087C3; text-decoration: none; } body { position: relative; width: 21cm; height: 29.7cm; margin: 0 auto; color: #555555; background: #FFFFFF; font-family: Arial, sans-serif; font-size: 14px; font-family: Verdana; } header { padding: 10px 0; margin-bottom: 20px; border-bottom: 1px solid #AAAAAA; } #logo { float: left; margin-top: 8px; } #logo img { height: 70px; } #company { float: right; text-align: right; } #details { margin-bottom: 50px; } #client { padding-left: 6px; border-left: 6px solid #0087C3; float: left; } #client .to { color: #777777; } h2.name { font-size: 1.4em; font-weight: normal; margin: 0; } #invoice { float: right; text-align: right; } #invoice h1 { color: #0087C3; font-size: 2.4em; line-height: 1em; font-weight: normal; margin: 0 0 10px 0; } #invoice .date { font-size: 1.1em; color: #777777; } table { width: 100%; border-collapse: collapse; border-spacing: 0; margin-bottom: 20px; } table th, table td { padding: 5px 20px; background: #EEEEEE; text-align: center; border-bottom: 1px solid #FFFFFF; } table th { white-space: nowrap; font-weight: bold; } table td { text-align: right; } table td h3 { color: #57B223; font-size: 1.2em; font-weight: normal; margin: 0 0 0.2em 0; } table .no { color: #FFFFFF; background: #57B223; } table .desc { text-align: left; } table .unit { background: #DDDDDD; } table .qty {} table .total { background: #57B223; color: #FFFFFF; } table td.unit, table td.qty, table td.total { font-size: 1.2em; } table tbody tr:last-child td { border: none; } table tfoot td { padding: 10px 20px; background: #FFFFFF; border-bottom: none; font-size: 1.2em; white-space: nowrap; border-top: 1px solid #AAAAAA; } table tfoot tr:first-child td { border-top: none; } table tfoot tr:last-child td { color: #57B223; font-size: 1.4em; border-top: 1px solid #57B223; } table tfoot tr td:first-child { border: none; } #thanks { font-size: 2em; margin-bottom: 50px; } #notices { padding-left: 6px; border-left: 6px solid #0087C3; } #notices .notice { font-size: 1.2em; } footer { color: #777777; width: 100%; height: 30px; position: absolute; bottom: 0; border-top: 1px solid #AAAAAA; padding: 8px 0; text-align: center; } </style> </head> <body> <header class="clearfix"> <div id="logo"> <img src="' + logo + '"> </div> ' + htmlEmpresa + ' </header> <main> <div id="details" class="clearfix"> <div id="client"> <h2 class="name">' + cliente.nombre + '</h2> <div class="address">Zona de reparto: ' + cliente.nombreGrupo + '</div> </div> <div id="invoice"> <h1>' + this.currentOrder.fecha + '</h1> <div class="date">Fecha del pedido</div> </div> </div> <table border="0" cellspacing="0" cellpadding="0"> <thead> <tr> <th class="no">#</th> <th class="desc">Producto</th> <th class="unit">Precio</th> <th class="qty">Unidades</th> <th class="total">Total</th> </tr> </thead> <tbody> ' + tablaProductos + ' </tbody> <tfoot> ' + totales + ' </tfoot> </table> <div id="thanks">¡Gracias!</div> <div id="notices"> <div>AVISO:</div> <div class="notice">Para cualquier consulta sobre el contenido de este recibo, por favor contáctanos en <a href="' + empresa.cuentaCorreo + '">' + empresa.cuentaCorreo + '</a>.</div> </div> </main> <footer> Este recibo se ha generado automáticamente. Si detectas cualquier error en los datos, avísanos. </footer> </body> </html>';
+      let iframe = document.createElement('iframe');
+      document.body.appendChild(iframe);
+      
+      let iframedoc = iframe.contentDocument || iframe.contentWindow.document;
+      iframedoc.body.innerHTML = html;
+
+
+      html2canvas(iframedoc.body).then(function(canvas){
+          let img = canvas.toDataURL("image/png");
+          let doc = new jsPDF();
+          let width = doc.internal.pageSize.getWidth() - 40;
+          let height = doc.internal.pageSize.getHeight() - 40;
+          doc.addImage(img,'JPEG', 20, 20, width, height);
+          doc.save('test.pdf');
+          document.body.removeChild(iframe);
+        }
+      );
     }
   },
   computed: {
@@ -239,6 +324,7 @@ function toEnglishNumber($number){
     return parseFloat($number.toString().replace(',', '.'));
 }
 function toSpanishNumber($number){
+  $number = parseFloat($number).toFixed(2);
     return $number.toString().replace('.', ',');
 }
 function calcHeightOrders(offset = 150){
@@ -256,6 +342,16 @@ function calcHeightOrders(offset = 150){
 
 <style lang="scss">
   @import '@/styles/_variables.scss';
+  iframe{
+    position: absolute;
+    z-index: -9999;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    /* margin: 0; */
+    /* line-height: 0px; */
+    top: 0;
+  }
   #logout-wrapper{
     width: 100%;
     text-align: right;
@@ -398,13 +494,13 @@ function calcHeightOrders(offset = 150){
   
   @media screen and (min-width: $tablet){
     #order-details-table{
-        max-height: 300px;
+        // max-height: 300px;
         overflow: auto;
     }
     #order-details-footer{
         position: absolute;
         #order-footer-buttons{
         }
-    }
+    } 
   }
 </style>

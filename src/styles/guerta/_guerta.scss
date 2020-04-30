@@ -18,6 +18,7 @@ $primary-color: #000;
     }
     #order-details {
         background-color: rgba($primary-color, 0.1);
+        background-color: lighten($primary-color, 90%);
         #order-checkout {
             background-color: #5D009B;
             span {

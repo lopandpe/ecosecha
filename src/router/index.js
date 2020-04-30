@@ -8,13 +8,7 @@ import PrevOrders from '../views/PrevOrders.vue';
 
 Vue.use(VueRouter)
 
-const routes = [
-    // {
-    //   path: '/',
-    //   name: 'Login',
-    //   component: Login
-    // },
-    {
+const routes = [{
         path: '/',
         name: 'Login',
         component: Login

@@ -15,7 +15,7 @@
 
 <script>
 // const axios = require('axios');
-import jwt_decode from 'jwt-decode';
+// import jwt_decode from 'jwt-decode';
 
 export default {
   name: 'Login',
@@ -43,7 +43,6 @@ export default {
         )
     },
     loginSuccessful (req) {
-      // console.log(req);
       
 
 
@@ -56,13 +55,8 @@ export default {
         return
       }
 
-      let tokenDecoded = jwt_decode(req.data.JWT);
-      console.log(tokenDecoded);
-      if(tokenDecoded.validation == "Baja"){
-        this.loginFailed('Baja', 'Usuario dado de baja');
-        return;
-      }
-      
+      // let tokenDecoded = jwt_decode(req.data.JWT);
+      // console.log(tokenDecoded);
 
       localStorage.token = req.data.JWT
       this.error = false
@@ -70,7 +64,9 @@ export default {
       this.$router.replace(this.$route.query.redirect || '/pedido')
     },
     loginFailed (error, mensaje = 'Por favor, comprueba que los datos introducidos son correctos.') {
-      console.log(error);
+      if('mensaje'in error.response.data){
+        mensaje = error.response.data.mensaje;
+      }
       this.error = mensaje;
       delete localStorage.token
     }
@@ -80,7 +76,7 @@ export default {
   }
 }
 </script>
-
+ 
 <style lang="scss">
   @import '@/styles/_variables.scss';
 </style>

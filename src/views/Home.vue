@@ -1,17 +1,14 @@
 <template>
   <div class="content-wrapper">
     <div id="order" class="col-12 col-md-6 col-lg-8">
-      <p class="intro" v-if="!guerta">
-        Configuración del pedido para el {{ fechaPedido }}. Recuerda que todo pedido debe incluir como mínimo una cesta o {{ minimo}} euros en productos independientes. Cualquier duda que tengas, ponte en contacto con nosotr@s en <a :href="`mailto:${mailEcosecha}`" target="_blank">{{ mailEcosecha }}</a>
+      <p class="intro">
+        Configuración del pedido para el {{ fechaPedido }}. Recuerda que todo pedido debe incluir como mínimo <span  v-if="!guerta">una cesta o </span>{{ minimo}} euros en productos. Cualquier duda que tengas, ponte en contacto con nosotr@s en <a :href="`mailto:${eMailProductor}`" target="_blank">{{ eMailProductor }}</a>
       </p>
-      <p class="intro" v-if="guerta">
-        Configuración del pedido para el {{ fechaPedido }}. Recuerda que todo pedido debe incluir como mínimo 20 euros en productos. Cualquier duda que tengas, ponte en contacto con nosotr@s en <a  :href="`mailto:${mailGuerta}`" target="_blank">{{ mailGuerta }}</a>
-      </p>
-      <h3 v-if="validation" class="red darken-2 text-center"><span class="white--text">{{ validation }}</span></h3>
+      <h3 v-if="!validation" class="red darken-2 text-center"><span class="white--text" v-html="validationMessage"></span></h3>
       <ProductsTab @updateBasket="updateBasket" :products="products" :familias="familias" :despensa="despensa" :validation="validation" v-if="products"/>
     </div>
     <div id="order-details" class="col-12 col-md-6 col-lg-4">
-      <OrderDetails ref="orderDetails" :order="order" :user="user" :fechaPedido="fechaPedido" :guerta="guerta" :minimo="minimo" :basketUpdated="basketUpdated" v-if="user && !validation"/>
+      <OrderDetails ref="orderDetails" :order="order" :user="user" :fechaPedido="fechaPedido" :guerta="guerta" :minimo="minimo" :basketUpdated="basketUpdated" :validation="validation" v-if="user"/>
     </div>
   </div>
 </template>
@@ -42,10 +39,10 @@ export default {
       user: null,
       defaultOrder: [],
       validation: null,
+      validationMessage: null,
       guerta: false,
       minimo: null,
-      mailEcosecha: null,
-      mailGuerta: null,
+      eMailProductor: null,
       depensa: 1,
       basketUpdated: false
     } 
@@ -72,20 +69,21 @@ export default {
       setData ( data ){
         console.log(data);
         this.user = data.mdoConsumidor;
-        this.minimo = parseFloat(data.mdoConfiguracion.minimo.trim());
-        this.mailEcosecha = data.mdoConsumidor.cuentasCorreo[0];
-        this.mailGuerta = data.mdoConsumidor.cuentasCorreo[1];
+        this.minimo = parseFloat(data.mdoConfiguracion.importeMinimo.trim());
+        this.eMailProductor = data.mdoConfiguracion.cuentaCorreo;
         this.fechaPedido = data.mdoConfiguracion.fecha;
-        this.despensa = data.mdoConsumidor.pedidosCarta;
+        this.despensa = parseInt(data.mdoConsumidor.pedidosCarta);
         this.setProductsList(data);
         this.defaultOrderCalc ( data.mdoPedidosExtras );
         this.validation = data.mdoConsumidor.validacion == 'Ok';
+        // this.validation = true;
+        this.validationMessage = data.mdoConsumidor.validacion.replace('|', '</br>');
       },
       defaultOrderCalc ( order ){
         if(Array.isArray(order.articulos) && order.articulos.length){
           let printed = false;
           for(let i = 0; i < order.articulos.length; i++){
-            if(parseInt( order.articulos[i].importe) > 0){
+            if(parseInt(order.articulos[i].importe) > 0){
               if(!printed){
                 printed = true;
               }
@@ -194,20 +192,27 @@ export default {
     #order-details{
       // background-color: $orders-bg;
       height: calc(100vh - 64px);
-      position: sticky;
+      position: fixed;
+      right: 0px;
       top: 64px;
       padding-bottom: auto;
       z-index: initial;
+      padding-bottom: 90px;
+      .order-details-container{        
+        height: 100%;
+        overflow-y: auto;
+        padding-bottom: 80px;
+      }
       &.scrollbar{
-        height: auto;
-        min-height: calc(100vh - 64px);
-        height: fit-content;
-        /* position: relative; */
-        bottom: 0px;
-        /* margin-top: 64px; */
-        top: auto;
-          }
-        }
+        // height: auto;
+        // min-height: calc(100vh - 64px);
+        // height: fit-content;
+        // /* position: relative; */
+        // bottom: 0px;
+        // /* margin-top: 64px; */
+        // top: auto;
+      }
+    }
   }
   .col-xl, .col-xl-auto, .col-xl-12, .col-xl-11, .col-xl-10, .col-xl-9, .col-xl-8, .col-xl-7, .col-xl-6, .col-xl-5, .col-xl-4, .col-xl-3, .col-xl-2, .col-xl-1, .col-lg, .col-lg-auto, .col-lg-12, .col-lg-11, .col-lg-10, .col-lg-9, .col-lg-8, .col-lg-7, .col-lg-6, .col-lg-5, .col-lg-4, .col-lg-3, .col-lg-2, .col-lg-1, .col-md, .col-md-auto, .col-md-12, .col-md-11, .col-md-10, .col-md-9, .col-md-8, .col-md-7, .col-md-6, .col-md-5, .col-md-4, .col-md-3, .col-md-2, .col-md-1, .col-sm, .col-sm-auto, .col-sm-12, .col-sm-11, .col-sm-10, .col-sm-9, .col-sm-8, .col-sm-7, .col-sm-6, .col-sm-5, .col-sm-4, .col-sm-3, .col-sm-2, .col-sm-1, .col, .col-auto, .col-12, .col-11, .col-10, .col-9, .col-8, .col-7, .col-6, .col-5, .col-4, .col-3, .col-2, .col-1 {
       width: 100%;

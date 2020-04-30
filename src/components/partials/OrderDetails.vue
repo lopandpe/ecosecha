@@ -10,7 +10,7 @@
         <h3>Zona de reparto: {{ zone }}</h3>
         <h3><strong>Fecha del pedido: {{ orderDate }}</strong></h3>
     </div>
-    <div id="order-details-table"  v-if="order.length">
+    <div id="order-details-table">
         <table>
             <thead>
                 <tr>
@@ -23,7 +23,7 @@
             </thead>
             <tbody>
                 <tr v-for="product in order" :key="product.id">
-                    <td><v-icon v-on:click="deleteRow(product.id)">mdi-delete-forever</v-icon></td>
+                    <td><v-icon v-on:click="deleteRow(product.id)" v-if="validation">mdi-delete-forever</v-icon></td>
                     <td class="col-name">{{ product.name }}</td>
                     <td>{{ product.price }}€</td>
                     <td>{{ product.quantity }}</td>
@@ -32,7 +32,7 @@
             </tbody>
         </table>
     </div>
-    <div id="order-summary"  v-if="order.length">
+    <div id="order-summary" >
         <div class="fila">
             <span class="order-summary-concept">Suma pedido</span>
             <span class="order-summary-price">{{ orderSum }}€</span>
@@ -51,7 +51,7 @@
             <span v-if=" order.length ">Total: {{ total }}€</span>
         </div>
         <div id="order-footer-buttons" v-bind:class="{ 'show-checkout': ordersOpened}">
-            <v-btn text id="order-checkout" class="bg-primary hidden-sm" :disabled="!canCheckout" @click="checkOut">{{ checkOutText }}</v-btn>
+            <v-btn text id="order-checkout" class="bg-primary hidden-sm" :disabled="!canCheckout" @click="checkOut" v-if="validation">{{ checkOutText }}</v-btn>
             <v-btn text id="order-show" class="bg-primary hidden-md-and-up" @click="toggleOrderDetails">Ver pedido</v-btn>
         </div>
          <div class="alert alert-danger" v-if="error">{{ error }}</div>
@@ -89,7 +89,8 @@ export default {
         defaultOrder: Array,
         guerta: Boolean,
         minimo: Number,
-        basketUpdated: Boolean
+        basketUpdated: Boolean,
+        validation: Boolean
     },
     data () {
       return {
@@ -124,8 +125,6 @@ export default {
             return toSpanishNumber(parseFloat(price).toFixed(2));
         },
         canCheckout: function(){
-            console.log('BasketUpdated: ' + this.basketUpdated)
-            console.log('rowDeleted: ' + this.rowDeleted)
             if(!this.basketUpdated && !this.rowDeleted){
                 return false;
             }
@@ -143,7 +142,7 @@ export default {
     methods: {
         deleteRow (id) {
             this.rowDeleted = true;
-            console.log(this.orderChanged)
+            // console.log(this.orderChanged)
             let pos = this.order.map(function(e) { 
                 return e.id; 
             }).indexOf(id);
@@ -178,14 +177,15 @@ export default {
             envio.fechaPedido = this.fechaPedido.trim();
             for(let i=0; i<order.length; i++ ){
                 let producto = order[i];
-                console.log(producto);
+                // console.log(producto);
                 let prod = {
                     'nombreProducto': producto.name,
                     'cantidad': producto.quantity.toString(),
                     'codigoProducto': producto.codigo.toString(),
                     'familiaProducto': producto.familia.toString(),
                     'importe': (producto.quantity * producto.price).toString(),
-                    'precio': producto.price
+                    'precio': producto.price,
+                    'idProducto': producto.id
                 }
                 envio.mdoLineasPedidoWeb.push(prod);
                 
@@ -198,6 +198,7 @@ export default {
             this.dialogTitle = '¡Perfecto!';
             this.dialogText = 'Hemos procesado correctamente tus cambios. ¡Muchas gracias!'
             this.dialog = true;
+            this.basketUpdated = this.rowDeleted = false;
         },
         errorCheckOut: function (error){
             this.error = 'Error al grabar el pedido';
@@ -211,8 +212,9 @@ export default {
           this.zone = this.user.nombreGrupo;
           this.orderDate = this.fechaPedido;
           this.discount = this.user.dtoSocio;
-          this.delivery = this.user.pagoReparto;
+          this.delivery = this.user.fijoDomicilio;
 
+        console.log('Validación: ' + this.validation)
         this.$nextTick(function() {
             // window.addEventListener('resize', this.calcHeightOrders);
             var doit;
@@ -373,7 +375,7 @@ function calcHeightOrders(offset = 150){
   
   @media screen and (min-width: $tablet){
     #order-details-table{
-        max-height: 300px;
+        // max-height: 300px;
         overflow: auto;
     }
     #order-details-footer{

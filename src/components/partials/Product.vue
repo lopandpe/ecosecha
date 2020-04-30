@@ -73,7 +73,7 @@ export default {
             this.imagen = "/default.jpg";
         },
         canSubmit(){
-            if(this.foo > 0 && !this.validation){
+            if(this.foo > 0 && this.validation){
                 return true;
             }
         }
@@ -166,7 +166,10 @@ function toSpanishNumber($number){
             }
             .product-add-to-cart{
                 background-color: $primary-color;
-                color: #FFF;
+                color: #FFF !important;
+                &.v-btn--disabled {
+                    opacity: 0.3;
+                }
             }
         }
         
