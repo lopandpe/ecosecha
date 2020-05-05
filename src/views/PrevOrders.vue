@@ -203,7 +203,7 @@ export default {
       }
     },
     setPrevOrder (data){
-      console.log(data);
+      // console.log(data);
       this.currentOrder.order.impPagoReparto = toSpanishNumber(data.impPagoReparto);
       this.currentOrder.order.impPreparacion = toSpanishNumber(data.impPreparacion);
       this.currentOrder.order.impRepartoDomi = toSpanishNumber(data.impRepartoDomi);

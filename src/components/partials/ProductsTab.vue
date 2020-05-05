@@ -104,7 +104,7 @@ export default {
       //Ordenamos los productos por categoría
       this.items[pos]['content'] = this.items[pos]['content'].sort((t1,t2) => t1.categoria < t2.categoria ? -1 : 1);
 
-      console.log(items);
+      // console.log(items);
     }
 }
 

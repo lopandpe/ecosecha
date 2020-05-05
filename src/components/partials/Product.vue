@@ -102,7 +102,7 @@ export default {
             
         },        
         hasSubProducts() {
-            console.log(this.subProductos);
+            // console.log(this.subProductos);
             if(!this.subProductos){
                 return false;
             }

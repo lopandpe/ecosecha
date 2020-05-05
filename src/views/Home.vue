@@ -67,7 +67,7 @@ export default {
         
       },
       setData ( data ){
-        console.log(data);
+        // console.log(data);
         this.user = data.mdoConsumidor;
         this.minimo = parseFloat(data.mdoConfiguracion.importeMinimo.trim());
         this.eMailProductor = data.mdoConfiguracion.cuentaCorreo;
@@ -119,7 +119,7 @@ export default {
         };
         this.familias = data.mdoFamilias;
         this.familias.push(familia);
-        console.log(this.familias);
+        // console.log(this.familias);
       },
       configureCestas(cestas, productos){
         cestas.forEach(function(cesta){
