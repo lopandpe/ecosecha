@@ -17,7 +17,7 @@
         >
           <v-card flat>
             <v-card-text class="d-flex flex-wrap justify-center">
-              <Product v-for="product in item.content" :key="product.id" :name="product.descripcion" :price="product.precio" :image="product.rutaImagen" :id="product.id" :from="product.procedencia" :type="item.nombre" :familia="product.familia" :codigo="product.codigo" :validation="validation" @addedProduct="updateBasket"/>
+              <Product v-for="product in item.content" :key="product.id" :name="product.descripcion" :price="product.precio" :image="product.rutaImagen" :id="product.id" :from="product.procedencia" :type="item.nombre" :familia="product.familia" :codigo="product.codigo" :subProductos="product.productos" :validation="validation" @addedProduct="updateBasket"/>
             </v-card-text>
           </v-card>
         </v-tab-item>
@@ -55,9 +55,14 @@ export default {
     mounted () {
       let items = [];   
       var positions = [];   
+      let posDespensa = 0; 
+
+
+      //Configuramos las familias. Son elementos de items[]
       for(let i = 0; i < this.familias.length; i++){
-        if(this.despensa == 0){
-          if(this.familias[i].nombre == "DESPENSA"){
+        if(this.familias[i].nombre == "DESPENSA"){ //usuarios sin despensa
+          posDespensa = i;
+          if(this.despensa == 0){
             continue;
           }
         }
@@ -68,12 +73,23 @@ export default {
         items[pos] = this.familias[i];
         items[pos]['content'] = [];
       }
+
+      //Ordenamos los productos por orden alfabético
+      this.products = this.products.sort((t1,t2) => t1.categoria < t2.categoria ? -1 : 1);
+
+
+      // rellenamos las familias con los productos
       this.products.forEach(function(product){
+        if(! ('productos' in product)){
+          product['productos'] = false;
+        }
         let pos = positions.indexOf('fam' + product.familia);
         if(pos >= 0 && (product.precio > 0)){
           items[pos]['content'].push(product);
         }
       });
+
+      //Ordenamos alfabeticamente las familias
       this.items = items.sort(function(a, b){
         let nameA=a.codigo, nameB=b.codigo
         if (nameA > nameB)
@@ -81,7 +97,14 @@ export default {
         if (nameA < nameB)
             return -1
         return 0
-      });
+      }); 
+      
+      let pos = positions.indexOf('fam' + this.familias[posDespensa].codigo);
+
+      //Ordenamos los productos por categoría
+      this.items[pos]['content'] = this.items[pos]['content'].sort((t1,t2) => t1.categoria < t2.categoria ? -1 : 1);
+
+      console.log(items);
     }
 }
 

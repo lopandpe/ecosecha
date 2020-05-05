@@ -63,7 +63,7 @@
                 </thead>
                 <tbody>
                     <tr v-for="product in currentOrder.order.products" :key="product.idProducto">
-                      <template v-if="product.idProducto && product.precio">
+                      <template v-if="product.idProducto">
                         <td class="col-name">{{ product.nombreProducto }}</td> 
                         <td>{{ product.precio }}€</td>
                         <td>{{ product.cantidad }}</td>

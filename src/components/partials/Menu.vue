@@ -4,7 +4,9 @@
         v-model="drawer"
         app
         id="menu"
+        temporary
         >
+            <v-icon @click.stop="drawer = !drawer" id="close-menu">mdi-close</v-icon>
             <v-list dense>
                 <v-list-item link to="/pedido">
                 <v-list-item-action>
@@ -90,8 +92,20 @@
 </script>
 
 <style lang="scss">
+  @import '@/styles/_variables.scss';
   #menu{
       padding-top: 65px;
+      #close-menu{
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: $error-color;
+            transition: all 0.5s ease-in-out;
+            font-size: 30px;
+            &:hover{
+                transform: rotate(180deg);
+            }
+      }
   }
   header.v-app-bar{
     box-shadow: none;      

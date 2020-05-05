@@ -104,17 +104,35 @@ export default {
       setProductsList (data){
         let allProducts = data.mdoProductosExtras;
         let cestas = data.mdoProductosCambios;
+
+        //Añadir listado de productos a cestas
+        cestas = this.configureCestas(cestas, data.mdoComposicionCesta)
+        
         allProducts.push(cestas)
         for(let i = 0; i < cestas.length; i++ ){
           allProducts.push(cestas[i]);
         }
-        this.products = allProducts;        
+        this.products = allProducts.sort((t1,t2) => t1.descripcion < t2.descripcion ? -1 : 1);        
         let familia = {
           codigo: 1,
           nombre: 'CESTAS'
         };
         this.familias = data.mdoFamilias;
         this.familias.push(familia);
+        console.log(this.familias);
+      },
+      configureCestas(cestas, productos){
+        cestas.forEach(function(cesta){
+          cesta['productos']= [];
+          let codigoCesta = cesta.codigo;
+          productos.forEach(function(producto){
+            if(producto.codigoCatalogo == codigoCesta){
+              cesta['productos'].push(producto);
+            }
+          })
+        });
+
+        return cestas;
       },
       calcHeightOrders(offset = 150){ 
           let elementHeight = document.querySelector('.order-details-container').offsetHeight;

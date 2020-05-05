@@ -6,6 +6,10 @@
         </v-img>
         <v-card-title class="product-title">{{ name }}</v-card-title>
         <v-card-subtitle class="product-from">{{ from }}</v-card-subtitle>
+        <v-card-subtitle class="product-subProducts" v-if="hasSubProducts()">
+            <a @click.stop="dialog = true">Ver composición</a>
+            </v-card-subtitle>
+        
         <v-card-actions class="product-actions">
             <div id="quantity-wrapper">
                 <v-btn class="product-control" text small v-on:click="decrement()">-</v-btn>
@@ -14,6 +18,32 @@
             </div>
             <v-btn text small class="product-add-to-cart bg-primary" v-on:click="submit" :disabled="!canSubmit()">Añadir</v-btn>
         </v-card-actions>
+        <v-dialog v-if="hasSubProducts()"
+            v-model="dialog"
+            max-width="320"
+            >
+            <v-card>
+                <v-card-title>Composición de<br>{{ name }}</v-card-title>
+                <v-card-text>
+                    <ul>
+                        <li v-for="producto in subProductos" v-bind:key="producto.codigoProducto">{{ producto.descripcion }} ({{ producto.cantidad }})</li>
+                    </ul>
+                </v-card-text>
+                
+
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+
+                    <v-btn
+                        color="green darken-1"
+                        text
+                        @click="dialog = false"
+                    >
+                        Ok
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+            </v-dialog>
     </v-card>
 </template>
 
@@ -32,7 +62,8 @@ export default {
         'type',
         'familia',
         'codigo',
-        'validation'
+        'validation',
+        'subProductos'
     ],
     components: {
     // ProductsTab
@@ -41,7 +72,8 @@ export default {
         return {
             precio: null,
             foo: 0,
-            imagen: "/default.jpg"
+            imagen: "/default.jpg",
+            dialog: false
         }
     },  
     methods: {
@@ -68,6 +100,13 @@ export default {
                 this.foo = 0;
             }
             
+        },        
+        hasSubProducts() {
+            console.log(this.subProductos);
+            if(!this.subProductos){
+                return false;
+            }
+            return this.subProductos.length;
         },
         imageLoadError(){
             this.imagen = "/default.jpg";
@@ -125,6 +164,9 @@ function toSpanishNumber($number){
         }
         .product-from{
             margin-top: -10px;
+        }
+        .product.subProducts{
+            padding-top: 0px;
         }
         .product-actions{
             justify-content: space-between;
