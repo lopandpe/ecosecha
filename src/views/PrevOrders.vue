@@ -101,7 +101,7 @@
             </div>
             <div id="order-footer-buttons" v-bind:class="{ 'show-checkout': ordersOpened}">
                 <!-- <v-btn text id="order-checkout" class="bg-primary hidden-sm" @click="download" v-if="currentOrder.order.total">Descargar PDF</v-btn> -->
-                <v-btn text id="order-checkout" class="bg-primary hidden-sm" @click="download" v-if="currentOrder.order.total != 0">Descargar PDF</v-btn>
+                <v-btn text id="order-checkout" class="bg-primary hidden-sm" @click="download" v-if="currentOrder.order.total != 0">{{ downloadText }}</v-btn>
                 <v-btn text id="order-show" class="bg-primary hidden-md-and-up" @click="toggleOrderDetails">Ver pedido</v-btn>
             </div>
         </div>
@@ -133,6 +133,7 @@ export default {
       ordersOpened: false,
       activeOrderListItem: '1121',
       fechas: null,
+      downloadText: 'Descargar PDF',
       orders: [
         { 
           tab: 'Pedidos anteriores', 
@@ -224,7 +225,7 @@ export default {
       }).then( response => this.setPrevOrder(response.data) )
         .catch( error => console.log(error) );
     },
-    download(){      
+    download(){
       let empresa = this.allData.mdoConfiguracion;
 
       let cliente = this.allData.mdoConsumidor;

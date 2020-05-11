@@ -3,7 +3,7 @@
     <!-- <Nav /> -->
     <Menu v-if="logged" @logOut="logOut" :guerta="guerta"/>
     <v-content>
-      <router-view   />
+      <router-view />
     </v-content>
     <div id="loader" v-bind:class="{ active: loader }">
       <div class="centered">

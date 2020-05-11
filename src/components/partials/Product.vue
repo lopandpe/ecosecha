@@ -205,16 +205,17 @@ function toSpanishNumber($number){
                     .v-text-field__slot{
                         overflow: hidden;
                     }
-                    input{
-                        max-width: none;
-                        width: 25px;
-                        overflow: hidden;
+                    input{                       
                         text-align: center;
-                        -webkit-appearance: none;
-                        -moz-appearance:    none;
-                        appearance:         none;
-                        margin: 0;
-                        color: #000 !important;
+                        // max-width: none;
+                        // width: 25px;
+                        // overflow: hidden;
+                        // text-align: center;
+                        // -webkit-appearance: none;
+                        // -moz-appearance:    none;
+                        // appearance:         none;
+                        // margin: 0;
+                        // color: #000 !important;
                         // margin-right: -15px;
                     }
                 }

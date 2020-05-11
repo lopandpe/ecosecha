@@ -6,7 +6,7 @@ import axios from "./backend/vue-axios";
 
 import './styles/common/styles.scss';
 
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
 
 new Vue({
     vuetify,
