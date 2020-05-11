@@ -1,23 +1,29 @@
 <template v-if="parseInt(precio) > 0">
-    <v-card class="product" max-width="180">
+    <v-card class="product">
         <!-- <v-img class="align-end" height="95px" :src="'http://ecosecha.vservers.es' + image">                 -->
         <v-img class="align-end" height="95px" :src="imagen" @error="imageLoadError">                
             <v-card-text class="product-price">{{ precio }}€</v-card-text>
         </v-img>
-        <v-card-title class="product-title">{{ name }}</v-card-title>
-        <v-card-subtitle class="product-from">{{ from }}</v-card-subtitle>
-        <v-card-subtitle class="product-subProducts" v-if="hasSubProducts()">
-            <a @click.stop="dialog = true">Ver composición</a>
-            </v-card-subtitle>
-        
-        <v-card-actions class="product-actions">
-            <div id="quantity-wrapper">
-                <v-btn class="product-control" text small v-on:click="decrement()">-</v-btn>
-                <v-text-field class="product-quantity" v-model="foo" value="0" type="text" min="0" disabled></v-text-field>
-                <v-btn class="product-control" text small  v-on:click="increment()">+</v-btn>
+        <div class="content">
+            <div class="data">
+                <v-card-title class="product-title">{{ name }}</v-card-title>
+                <v-card-subtitle class="product-from">{{ from }}</v-card-subtitle>
+                <v-card-subtitle class="product-subProducts" v-if="hasSubProducts()">
+                    <a @click.stop="dialog = true">Ver composición</a>
+                </v-card-subtitle>
             </div>
-            <v-btn text small class="product-add-to-cart bg-primary" v-on:click="submit" :disabled="!canSubmit()">Añadir</v-btn>
-        </v-card-actions>
+            <div class="footer">
+                <v-card-actions class="product-actions">
+                    <div id="quantity-wrapper">
+                        <v-btn class="product-control" text small v-on:click="decrement()">-</v-btn>
+                        <v-text-field class="product-quantity" v-model="foo" value="0" type="text" min="0" disabled></v-text-field>
+                        <v-btn class="product-control" text small  v-on:click="increment()">+</v-btn>
+                    </div>
+                    <v-btn text small class="product-add-to-cart bg-primary" v-on:click="submit" :disabled="!canSubmit()">Añadir</v-btn>
+                </v-card-actions>
+            </div>
+        </div>
+        
         <v-dialog v-if="hasSubProducts()"
             v-model="dialog"
             max-width="320"
@@ -43,7 +49,7 @@
                     </v-btn>
                 </v-card-actions>
             </v-card>
-            </v-dialog>
+        </v-dialog>
     </v-card>
 </template>
 
@@ -145,7 +151,14 @@ function toSpanishNumber($number){
   .product{
         // box-shadow: none;
         // border: none;
-        margin: 10px;
+        max-width: 160px;
+        margin: 5px;
+        .content{
+            height: calc(100% - 95px);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
         .product-price{
             position: absolute;
             bottom: 0px;
@@ -165,7 +178,7 @@ function toSpanishNumber($number){
         .product-from{
             margin-top: -10px;
         }
-        .product.subProducts{
+        .product-subProducts{
             padding-top: 0px;
         }
         .product-actions{
@@ -217,6 +230,12 @@ function toSpanishNumber($number){
         
       .v-image{
 
+      }
+  }
+  @media screen and (min-width: $desktop){
+      .product{
+          max-width: 170px;
+          margin: 10px;
       }
   }
 </style>

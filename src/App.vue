@@ -103,6 +103,7 @@
         // console.log('Error!');
         delete localStorage.token
         this.loader = false;
+        this.logged = false;
         let allowedRoutes = ['/', '/remember', '/resetpassword'];
         if( !allowedRoutes.includes( this.$route.path ) ){
           let path = '/?redirect=' + this.$route.path.replace('/', '');        

@@ -1,13 +1,13 @@
 <template>
   <div class="content-wrapper">
-    <div id="order" class="col-12 col-md-6 col-lg-8">
+    <div id="order" class="col-12 col-md-7 col-lg-8">
       <p class="intro">
         Configuración del pedido para el {{ fechaPedido }}. Recuerda que todo pedido debe incluir como mínimo <span  v-if="!guerta">una cesta o </span>{{ minimo}} euros en productos. Cualquier duda que tengas, ponte en contacto con nosotr@s en <a :href="`mailto:${eMailProductor}`" target="_blank">{{ eMailProductor }}</a>
       </p>
       <h3 v-if="!validation" class="red darken-2 text-center"><span class="white--text" v-html="validationMessage"></span></h3>
       <ProductsTab @updateBasket="updateBasket" :products="products" :familias="familias" :despensa="despensa" :validation="validation" v-if="products"/>
     </div>
-    <div id="order-details" class="col-12 col-md-6 col-lg-4">
+    <div id="order-details" class="col-12 col-md-5 col-lg-4">
       <OrderDetails ref="orderDetails" :order="order" :user="user" :fechaPedido="fechaPedido" :guerta="guerta" :minimo="minimo" :basketUpdated="basketUpdated" :validation="validation" v-if="user"/>
     </div>
   </div>
@@ -180,7 +180,8 @@ export default {
   }
   #order{
     padding: 20px;
-    padding-top: 100px;
+    padding-top: 40px;
+    padding-bottom: 100px;
   }
   #order-details{
     background-color: $orders-bg;
@@ -206,6 +207,9 @@ export default {
       #order-details{
         top: 64px;
       }
+    }
+    #order{
+      padding-bottom: 20px;
     }
     #order-details{
       // background-color: $orders-bg;
@@ -243,11 +247,17 @@ export default {
       max-width: 100%;
   }
   @media (min-width: 960px){
-    .col-md-6 {
+    .col-md-5 {
         -webkit-box-flex: 0;
-        -ms-flex: 0 0 50%;
-        flex: 0 0 50%;
-        max-width: 50%;
+        -ms-flex: 0 0 41.6666%;
+        flex: 0 0 41.6666%;
+        max-width: 41.6666%;
+    }
+    .col-md-7 {
+        -webkit-box-flex: 0;
+        -ms-flex: 0 0 58.3333%;
+        flex: 0 0 58.3333%;
+        max-width: 58.3333%;
     }
   }
   @media (min-width: 1264px){

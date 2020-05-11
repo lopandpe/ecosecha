@@ -1,6 +1,6 @@
 <template>
   <div class="content-wrapper">
-    <div id="order" class="col-12 col-md-6 col-lg-8">
+    <div id="order" class="col-xs-12 col-md-6 col-lg-8">
       <p class="intro">
         A continuación puedes ver un listado con todos los pedidos realizados hasta la fecha. Seleccione un pedido para consultar sus detalles, o para descargar en formato PDF.      
       </p>
@@ -39,7 +39,7 @@
         </v-tabs-items>
       </div>
     </div>
-    <div id="order-details" class="col-12 col-md-6 col-lg-4">
+    <div id="order-details" class="col-xs-12 col-md-6 col-lg-4">
       <div class="order-details-container container" >
         <v-icon v-on:click="toggleOrderDetails()" id="close-orders" class="hidden-md-and-up">mdi-close</v-icon>
         <h2>Resumen del pedido</h2>
@@ -87,7 +87,7 @@
                 <span class="order-summary-price">{{ currentOrder.order.impPreparacion }}€</span>
             </div>
             <div class="fila" id="order-summary-impRepartoDomi" v-if="currentOrder.order.impRepartoDomi != '0,00' ">
-                <span class="order-summary-concept">Reparto</span>
+                <span class="order-summary-concept">Coste Reparto</span>
                 <span class="order-summary-price">{{ currentOrder.order.impRepartoDomi }}€</span>
             </div>
             <div class="fila" id="order-summary-suplemento" v-if="currentOrder.order.suplemento != '0,00' ">
@@ -258,7 +258,7 @@ export default {
         totales += '<tr> <td colspan="2"></td> <td colspan="2">Importe preparación</td> <td>' + toSpanishNumber(this.currentOrder.order.impPreparacion) + '€</td> </tr>';
       }
       if(this.currentOrder.order.impRepartoDomi != '0,00' ){
-        totales += '<tr> <td colspan="2"></td> <td colspan="2">Reparto</td> <td>' + toSpanishNumber(this.currentOrder.order.impRepartoDomi) + '€</td> </tr>';
+        totales += '<tr> <td colspan="2"></td> <td colspan="2">Coste reparto</td> <td>' + toSpanishNumber(this.currentOrder.order.impRepartoDomi) + '€</td> </tr>';
       }
       if(this.currentOrder.order.suplemento != '0,00' ){
         totales += '<tr> <td colspan="2"></td> <td colspan="2">Suplemento</td> <td>' + toSpanishNumber(this.currentOrder.order.suplemento) + '€</td> </tr>';
@@ -378,10 +378,10 @@ function calcHeightOrders(offset = 150){
       }
     }
   }
-  #order{
-    padding: 20px;
-    padding-top: 100px;
-  }
+  // #order{
+  //   padding: 20px;
+  //   padding-top: 100px;
+  // }
   .order-details-container{
       padding: 10px 20px;
       h2{

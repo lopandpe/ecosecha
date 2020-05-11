@@ -214,7 +214,7 @@ export default {
           this.discount = this.user.dtoSocio;
           this.delivery = this.user.fijoDomicilio;
 
-        console.log('Validación: ' + this.validation)
+        // console.log('Validación: ' + this.validation)
         this.$nextTick(function() {
             // window.addEventListener('resize', this.calcHeightOrders);
             var doit;

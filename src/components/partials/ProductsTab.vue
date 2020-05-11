@@ -15,6 +15,17 @@
             v-for="item in items"
             :key="item.nombre"
         >
+        <template v-if="item.nombre == 'DESPENSA'">
+          <v-select
+            :items="catsDespensa"
+            item-text="nombre"
+            item-value="codigo"
+            label="Selecciona una categoría"
+            solo
+            v-on:change="filterDespensa"
+            :id="catsSelector"
+          ></v-select>
+        </template>
           <v-card flat>
             <v-card-text class="d-flex flex-wrap justify-center">
               <Product v-for="product in item.content" :key="product.id" :name="product.descripcion" :price="product.precio" :image="product.rutaImagen" :id="product.id" :from="product.procedencia" :type="item.nombre" :familia="product.familia" :codigo="product.codigo" :subProductos="product.productos" :validation="validation" @addedProduct="updateBasket"/>
@@ -45,23 +56,37 @@ export default {
       return {
         tab: null,
         items: null,
+        catsDespensa: null,
+        posDespensa: null,
+        fullDespensa: [],
       }
     },      
     methods: {
         updateBasket ( product ){
           this.$emit('updateBasket', product);
+        },
+        filterDespensa(category){
+          console.log(this.fullDespensa);
+          let despensaFiltrada = [];
+          this.fullDespensa.forEach(function(item){
+            if( item.categoria == category){
+              despensaFiltrada.push(item);
+            }
+          });
+          this.items[this.posDespensa].content = despensaFiltrada;
+          this.$forceUpdate();
+
         }
     }, 
     mounted () {
       let items = [];   
       var positions = [];   
-      let posDespensa = 0; 
-
+      // let posDespensa = 0;
 
       //Configuramos las familias. Son elementos de items[]
       for(let i = 0; i < this.familias.length; i++){
-        if(this.familias[i].nombre == "DESPENSA"){ //usuarios sin despensa
-          posDespensa = i;
+        if(this.familias[i].nombre == "DESPENSA"){ 
+          // posDespensa = i;
           if(this.despensa == 0){
             continue;
           }
@@ -70,11 +95,12 @@ export default {
           positions.push('fam' + this.familias[i].codigo);
         }
         let pos = positions.indexOf('fam' + this.familias[i].codigo);
+
         items[pos] = this.familias[i];
         items[pos]['content'] = [];
       }
 
-      //Ordenamos los productos por orden alfabético
+      //Ordenamos los productos por categoría
       this.products = this.products.sort((t1,t2) => t1.categoria < t2.categoria ? -1 : 1);
 
 
@@ -88,6 +114,9 @@ export default {
           items[pos]['content'].push(product);
         }
       });
+      
+      //Guardamos la despensa entera para poder filtrar más adelante
+      // this.fullDespensa = items[posDespensa];
 
       //Ordenamos alfabeticamente las familias
       this.items = items.sort(function(a, b){
@@ -99,10 +128,20 @@ export default {
         return 0
       }); 
       
-      let pos = positions.indexOf('fam' + this.familias[posDespensa].codigo);
+      // console.log(items);
 
-      //Ordenamos los productos por categoría
-      this.items[pos]['content'] = this.items[pos]['content'].sort((t1,t2) => t1.categoria < t2.categoria ? -1 : 1);
+      for( let i = 0; i < this.items.length; i++ ){
+        if(this.items[i].nombre == 'DESPENSA'){
+          this.catsDespensa = this.items[i].mdoCategorias;
+          this.posDespensa = i;
+          this.fullDespensa = this.items[i].content;
+        }
+      }
+
+      // this.posDespensa = pos;
+      // console.log(pos);
+      // //Ordenamos los productos por categoría
+      // this.items[pos]['content'] = this.items[pos]['content'].sort((t1,t2) => t1.categoria < t2.categoria ? -1 : 1);
 
       // console.log(items);
     }
@@ -119,6 +158,10 @@ export default {
   #logout-wrapper{
     width: 100%; 
     text-align: right;
+  }
+  .v-input.v-select{    
+    max-width: 350px;
+    margin: 40px auto 0px;
   }
   .products-tab{
     margin-top: 50px;
