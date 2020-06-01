@@ -6,7 +6,14 @@
       <label for="inputUser" class="sr-only">Usuario</label>
       <input v-model="user" type="text" id="inputUser" class="form-control" placeholder="Nombre de usuario" required autofocus>
       <label for="inputPassword" class="sr-only">Password</label>
-      <input v-model="password" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+       <v-text-field
+            v-model="password"
+            :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+            required
+            :type="showPassword ? 'text' : 'password'"
+            name="input-10-1"
+            @click:append="showPassword = !showPassword"
+          ></v-text-field>
       <button class="btn btn-lg btn-primary btn-block bg-primary" type="submit">Entrar</button>
       <router-link :to="{name: 'Remember'}">Olvidé mi contraseña</router-link>
     </form>
@@ -24,6 +31,7 @@ export default {
       user: '',
       password: '',
       error: false,
+      showPassword: false,
     }
   },
   methods: {
@@ -79,4 +87,22 @@ export default {
  
 <style lang="scss">
   @import '@/styles/_variables.scss';
+  input{
+    margin-bottom: 10px !important;
+  }
+  label{
+    margin-top: 5px;
+    display: block;
+  }
+  .v-text-field {
+    padding-top: 0px;
+    margin-top: 0px;
+  }
+  .v-text-field > .v-input__control > .v-input__slot:after,
+  .theme--light.v-text-field > .v-input__control > .v-input__slot:before {
+    display: none;
+  }
+  .v-text-field__details{
+    display: none !important;
+  }
 </style>

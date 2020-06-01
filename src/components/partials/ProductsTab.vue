@@ -23,7 +23,6 @@
             label="Selecciona una categoría"
             solo
             v-on:change="filterDespensa"
-            :id="catsSelector"
           ></v-select>
         </template>
           <v-card flat>
@@ -66,7 +65,6 @@ export default {
           this.$emit('updateBasket', product);
         },
         filterDespensa(category){
-          console.log(this.fullDespensa);
           let despensaFiltrada = [];
           this.fullDespensa.forEach(function(item){
             if( item.categoria == category){
@@ -102,6 +100,7 @@ export default {
 
       //Ordenamos los productos por categoría
       this.products = this.products.sort((t1,t2) => t1.categoria < t2.categoria ? -1 : 1);
+      
 
 
       // rellenamos las familias con los productos
@@ -110,7 +109,7 @@ export default {
           product['productos'] = false;
         }
         let pos = positions.indexOf('fam' + product.familia);
-        if(pos >= 0 && (product.precio > 0)){
+        if(pos >= 0 && (product.precio > 0)){ ////////////////////////// ¡OJO! Si el precio es 0 no se añade
           items[pos]['content'].push(product);
         }
       });
@@ -127,8 +126,6 @@ export default {
             return -1
         return 0
       }); 
-      
-      // console.log(items);
 
       for( let i = 0; i < this.items.length; i++ ){
         if(this.items[i].nombre == 'DESPENSA'){
@@ -137,13 +134,6 @@ export default {
           this.fullDespensa = this.items[i].content;
         }
       }
-
-      // this.posDespensa = pos;
-      // console.log(pos);
-      // //Ordenamos los productos por categoría
-      // this.items[pos]['content'] = this.items[pos]['content'].sort((t1,t2) => t1.categoria < t2.categoria ? -1 : 1);
-
-      // console.log(items);
     }
 }
 

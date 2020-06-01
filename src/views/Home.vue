@@ -67,7 +67,7 @@ export default {
         
       },
       setData ( data ){
-        // console.log(data);
+        console.log(data);
         this.user = data.mdoConsumidor;
         this.minimo = parseFloat(data.mdoConfiguracion.importeMinimo.trim());
         this.eMailProductor = data.mdoConfiguracion.cuentaCorreo;
@@ -75,7 +75,7 @@ export default {
         this.despensa = parseInt(data.mdoConsumidor.pedidosCarta);
         this.setProductsList(data);
         this.defaultOrderCalc ( data.mdoPedidosExtras );
-        this.validation = data.mdoConsumidor.validacion == 'Ok';
+        this.validation = data.mdoConsumidor.validacion.toLowerCase() == 'ok';
         // this.validation = true;
         this.validationMessage = data.mdoConsumidor.validacion.replace('|', '</br>');
       },

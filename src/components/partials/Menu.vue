@@ -9,28 +9,28 @@
             <v-icon @click.stop="drawer = !drawer" id="close-menu">mdi-close</v-icon>
             <v-list dense>
                 <v-list-item link to="/pedido">
-                <v-list-item-action>
-                    <v-icon>mdi-cart-arrow-down</v-icon>
-                </v-list-item-action>
-                <v-list-item-content>
-                    <v-list-item-title>Configurar pedido</v-list-item-title>
-                </v-list-item-content>
+                    <v-list-item-action>
+                        <v-icon>mdi-cart-arrow-down</v-icon>
+                    </v-list-item-action>
+                    <v-list-item-content>
+                        <v-list-item-title>Configurar pedido</v-list-item-title>
+                    </v-list-item-content>
                 </v-list-item>
                 <v-list-item link to="/pedidos-anteriores">
-                <v-list-item-action>
-                    <v-icon>mdi-history</v-icon>
-                </v-list-item-action>
-                <v-list-item-content>
-                    <v-list-item-title>Pedidos anteriores</v-list-item-title>
-                </v-list-item-content>
+                    <v-list-item-action>
+                        <v-icon>mdi-history</v-icon>
+                    </v-list-item-action>
+                    <v-list-item-content>
+                        <v-list-item-title>Pedidos anteriores</v-list-item-title>
+                    </v-list-item-content>
                 </v-list-item>
-                <v-list-item link href="https://ecosecha.blogspot.com/" target="_blank">
-                <v-list-item-action>
-                    <v-icon>mdi-open-in-new</v-icon>
-                </v-list-item-action>
-                <v-list-item-content>
-                    <v-list-item-title>Blog de ecosecha</v-list-item-title>
-                </v-list-item-content>
+                <v-list-item link :href="web" target="_blank">
+                    <v-list-item-action>
+                        <v-icon>mdi-open-in-new</v-icon>
+                    </v-list-item-action>
+                    <v-list-item-content>
+                        <v-list-item-title>Visita nuestra web</v-list-item-title>
+                    </v-list-item-content>
                 </v-list-item>
             </v-list>
         </v-navigation-drawer>
@@ -76,7 +76,8 @@
   export default {
     props: {
       source: String,
-      guerta: Boolean
+      guerta: Boolean,
+      web: String
     }, 
     data: () => ({
       drawer: false,

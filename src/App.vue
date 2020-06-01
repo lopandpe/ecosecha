@@ -1,7 +1,7 @@
 <template>
   <v-app id="inspire" v-bind:class="{ guerta: guerta }">
     <!-- <Nav /> -->
-    <Menu v-if="logged" @logOut="logOut" :guerta="guerta"/>
+    <Menu v-if="logged" @logOut="logOut" :guerta="guerta" :web="web"/>
     <v-content>
       <router-view />
     </v-content>
@@ -59,7 +59,8 @@
       drawer: null,
       loader: false,
       logged: false,
-      guerta: false
+      guerta: false,
+      web: ''
     }),
     components: {
       Menu
@@ -70,15 +71,14 @@
         if (localStorage.token){
             let tokenDecoded = jwt_decode(localStorage.token);
             this.guerta = tokenDecoded.distribution == 1;
-        }       
-        let allowedRoutes = ['/', '/remember', '/resetpassword'];
-        if (!localStorage.token && !allowedRoutes.includes( this.$route.path ) ) {
-          if(this.$route.path != '/'){
+            this.web = tokenDecoded.urlweb;
+            this.logged = true;
+        }else{
+          let allowedRoutes = ['/', '/remember', '/resetpassword'];
+          if (!allowedRoutes.includes( this.$route.path ) && this.$route.path != '/' && !this.$route.path.match(/\.jpg$/) ) {
             this.$router.push('/?redirect=' + this.$route.path.replace('/', ''));
           }
-        }else if (localStorage.token){
-          this.logged = true;
-        }
+        } 
       },
       logOut(){
         this.logged = false;

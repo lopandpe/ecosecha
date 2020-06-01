@@ -1,4 +1,4 @@
-<template v-if="parseInt(precio) > 0">
+s<template v-if="parseInt(precio) > 0">
     <v-card class="product">
         <!-- <v-img class="align-end" height="95px" :src="'http://ecosecha.vservers.es' + image">                 -->
         <v-img class="align-end" height="95px" :src="imagen" @error="imageLoadError">                
@@ -6,7 +6,7 @@
         </v-img>
         <div class="content">
             <div class="data">
-                <v-card-title class="product-title">{{ name }}</v-card-title>
+                <v-card-title class="product-title" v-html="name"></v-card-title>
                 <v-card-subtitle class="product-from">{{ from }}</v-card-subtitle>
                 <v-card-subtitle class="product-subProducts" v-if="hasSubProducts()">
                     <a @click.stop="dialog = true">Ver composición</a>
@@ -15,9 +15,10 @@
             <div class="footer">
                 <v-card-actions class="product-actions">
                     <div id="quantity-wrapper">
-                        <v-btn class="product-control" text small v-on:click="decrement()">-</v-btn>
-                        <v-text-field class="product-quantity" v-model="foo" value="0" type="text" min="0" disabled></v-text-field>
-                        <v-btn class="product-control" text small  v-on:click="increment()">+</v-btn>
+                        <span class="product-control" text small v-on:click="decrement()">-</span>
+                        <span class="quantity">{{ foo }}</span>
+                        <v-text-field class="product-quantity" v-model="foo" value="0" type="text" min="0" disabled hidden></v-text-field>
+                        <span class="product-control" text small  v-on:click="increment()">+</span>
                     </div>
                     <v-btn text small class="product-add-to-cart bg-primary" v-on:click="submit" :disabled="!canSubmit()">Añadir</v-btn>
                 </v-card-actions>
@@ -78,7 +79,7 @@ export default {
         return {
             precio: null,
             foo: 0,
-            imagen: "/default.jpg",
+            imagen: "/img/default.jpg",
             dialog: false
         }
     },  
@@ -115,7 +116,7 @@ export default {
             return this.subProductos.length;
         },
         imageLoadError(){
-            this.imagen = "/default.jpg";
+            this.imagen = "/img/default.jpg";
         },
         canSubmit(){
             if(this.foo > 0 && this.validation){
@@ -125,15 +126,20 @@ export default {
     },
     mounted (){
         this.precio = toSpanishNumber(this.price);
-        
+        let parentesis = this.name.indexOf('(');
+        if(parentesis > 0){
+            let name = this.name.substr(0, parentesis);
+            let cantidad = '<span class="units">' + this.name.substr(parentesis) + '</span>';
+            this.name = name + cantidad;
+        }
         let foto = this.image;
-        foto = foto.replace('c:/products/', '/img/');
-        foto = foto.replace('/products/', '/img/');
+        foto = foto.replace('c:/products/', '/imagenes/');
+        foto = foto.replace('/products/', '/imagenes/');
         let imageExists = require('image-exists');
         imageExists(foto, function(exists) {
             // console.log(foto + ' -> ' + exists);
             if (!exists) {
-                foto = "/default.jpg";
+                foto = "/img/default.jpg";
             }
         });
         this.imagen = foto;
@@ -153,6 +159,7 @@ function toSpanishNumber($number){
         // border: none;
         max-width: 160px;
         margin: 5px;
+        padding-bottom: 10px;
         .content{
             height: calc(100% - 95px);
             display: flex;
@@ -174,6 +181,9 @@ function toSpanishNumber($number){
             font-size: 15px;
             line-height: 1.25em;
             word-break: normal;
+            .units{
+                white-space: nowrap;
+            }
         }
         .product-from{
             margin-top: -10px;
@@ -188,12 +198,19 @@ function toSpanishNumber($number){
             #quantity-wrapper{
                 display: flex;
                 align-items: center;
-                .v-btn.product-control{
+                .product-control{
                     min-width: auto;
                     font-size: 26px;
                     font-weight: 100;
                     margin: 0px;
                     padding: 0 5px;
+                }
+                .quantity{
+                    border-bottom: 1px solid rgba(0, 0, 0, 0.42);
+                    font-size: 16px;
+                    line-height: 20px;
+                    padding: 3px 5px 1px;
+                    white-space: nowrap;
                 }
                 .product-quantity{
                     .v-input__slot{
