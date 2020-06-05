@@ -33,7 +33,7 @@ export default {
   },
   methods: {
     checkCurrentLogin () {
-      if (localStorage.token) {
+      if (window.sessionStorage.token) {
         if(this.$route.query.redirect){
           this.$router.replace(this.$route.query.redirect)
         }else{

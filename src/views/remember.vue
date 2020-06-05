@@ -30,7 +30,7 @@ export default {
   },
   methods: {
     checkCurrentLogin () {
-      if (localStorage.token) {
+      if (window.sessionStorage.token) {
         this.$router.replace(this.$route.query.redirect || '/pedido')
       }
     },

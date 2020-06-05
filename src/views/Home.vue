@@ -69,6 +69,11 @@ export default {
       setData ( data ){
         console.log(data);
         this.user = data.mdoConsumidor;
+        // console.log(!this.user);
+        if(!data.mdoConsumidor || !data.mdoConfiguracion){
+          this.validation = false;
+          this.validationMessage = 'Ha habido un error en el servidor. Por favor, vuelve a conectarte pasados unos minutos.';
+        }
         this.minimo = parseFloat(data.mdoConfiguracion.importeMinimo.trim());
         this.eMailProductor = data.mdoConfiguracion.cuentaCorreo;
         this.fechaPedido = data.mdoConfiguracion.fecha;
@@ -145,7 +150,7 @@ export default {
           }
       },
       getAllData(){
-        let token = localStorage.token;
+        let token = window.sessionStorage.token;
         let tokenDecoded = jwt_decode(token);
         let userId = tokenDecoded.jti;
         // console.log(tokenDecoded);
@@ -156,7 +161,7 @@ export default {
           usuario: userId, 
           password: '',
           fechaPedido: '',
-          token: localStorage.token
+          token: window.sessionStorage.token
         }).then( response => this.setData(response.data) )
           .catch( error => console.log(error) );
       }

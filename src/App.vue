@@ -68,8 +68,8 @@
     methods: {
       checkUserCredentials(){ 
         // console.log(this.$route.path);
-        if (localStorage.token){
-            let tokenDecoded = jwt_decode(localStorage.token);
+        if (window.sessionStorage.token){
+            let tokenDecoded = jwt_decode(window.sessionStorage.token);
             this.guerta = tokenDecoded.distribution == 1;
             this.web = tokenDecoded.urlweb;
             this.logged = true;
@@ -100,8 +100,12 @@
         this.loader = false;
         return response;
       }, (error) => {
-        // console.log('Error!');
-        delete localStorage.token
+        if(error['response'] !== undefined && 'mensaje' in error.response.data){
+          this.loader = false;
+          return error.response;
+        }
+        console.log('Error!');
+        delete window.sessionStorage.token
         this.loader = false;
         this.logged = false;
         let allowedRoutes = ['/', '/remember', '/resetpassword'];
@@ -109,7 +113,8 @@
           let path = '/?redirect=' + this.$route.path.replace('/', '');        
           this.$router.push(path);
         }
-        return Promise.reject(error);
+        // return error.response;
+        // return Promise.reject(error);
       });
     },
     // mounted () {

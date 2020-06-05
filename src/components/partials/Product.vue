@@ -33,7 +33,7 @@ s<template v-if="parseInt(precio) > 0">
                 <v-card-title>Composición de<br>{{ name }}</v-card-title>
                 <v-card-text>
                     <ul>
-                        <li v-for="producto in subProductos" v-bind:key="producto.codigoProducto">{{ producto.descripcion }} ({{ producto.cantidad }})</li>
+                        <li v-for="producto in subProductos" v-bind:key="producto.codigoProducto">{{ producto.descripcion }} ({{ producto.procedencia }})</li>
                     </ul>
                 </v-card-text>
                 
@@ -133,8 +133,9 @@ export default {
             this.name = name + cantidad;
         }
         let foto = this.image;
-        foto = foto.replace('c:/products/', '/imagenes/');
-        foto = foto.replace('/products/', '/imagenes/');
+        foto = '/imagenes/' + foto;
+        foto = foto.replace('c:/products/', '');
+        foto = foto.replace('/products/', '');
         let imageExists = require('image-exists');
         imageExists(foto, function(exists) {
             // console.log(foto + ' -> ' + exists);
@@ -204,6 +205,7 @@ function toSpanishNumber($number){
                     font-weight: 100;
                     margin: 0px;
                     padding: 0 5px;
+                    cursor: pointer;
                 }
                 .quantity{
                     border-bottom: 1px solid rgba(0, 0, 0, 0.42);

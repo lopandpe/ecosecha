@@ -214,20 +214,19 @@ export default {
       this.currentOrder.fecha = data.fecha;
     },
     prevOrder (date){      
-      let token = localStorage.token;
+      let token = window.sessionStorage.token;
       let tokenDecoded = jwt_decode(token);
       let userId = tokenDecoded.jti;
 
       this.$http.post('/pedidoanterior', { 
         usuario: userId, 
-        token: localStorage.token,
+        token: window.sessionStorage.token,
         fechaPedidoAnterior: date
       }).then( response => this.setPrevOrder(response.data) )
         .catch( error => console.log(error) );
     },
     download(){
       let empresa = this.allData.mdoConfiguracion;
-
       let cliente = this.allData.mdoConsumidor;
       let logo = '';
       if(cliente.repartoDomicilio){
@@ -308,14 +307,14 @@ export default {
     },
   },
   mounted () {    
-    let token = localStorage.token;
+    let token = window.sessionStorage.token;
     let tokenDecoded = jwt_decode(token);
     let userId = tokenDecoded.jti;
 
     this.$http.post('/all', { 
       usuario: userId,
       password: '',
-      token: localStorage.token
+      token: window.sessionStorage.token
     }).then( response => this.setData(response.data) )
       .catch( error => console.log(error) );
   }

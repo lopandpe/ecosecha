@@ -84,7 +84,7 @@
     }),
     methods:{
         logout: function () {
-            delete localStorage.token;
+            delete window.sessionStorage.token;
             this.$emit('logOut');
             this.$router.push('/');
         }

@@ -4,7 +4,7 @@
       <h2 class="form-signin-heading">Acceder a la plataforma</h2>
       <div class="alert alert-danger" v-if="error">{{ error }}</div>
       <label for="inputUser" class="sr-only">Usuario</label>
-      <input v-model="user" type="text" id="inputUser" class="form-control" placeholder="Nombre de usuario" required autofocus>
+      <input v-model="user" type="text" id="inputUser" class="form-control" placeholder="Nombre de usuario" required autofocus autocomplete="username">
       <label for="inputPassword" class="sr-only">Password</label>
        <v-text-field
             v-model="password"
@@ -13,6 +13,7 @@
             :type="showPassword ? 'text' : 'password'"
             name="input-10-1"
             @click:append="showPassword = !showPassword"
+            autocomplete="current-password"
           ></v-text-field>
       <button class="btn btn-lg btn-primary btn-block bg-primary" type="submit">Entrar</button>
       <router-link :to="{name: 'Remember'}">Olvidé mi contraseña</router-link>
@@ -36,7 +37,7 @@ export default {
   },
   methods: {
     checkCurrentLogin () {
-      if (localStorage.token) {
+      if (window.sessionStorage.token) {
         this.$router.replace(this.$route.query.redirect || '/pedido')
       }
     },
@@ -66,17 +67,17 @@ export default {
       // let tokenDecoded = jwt_decode(req.data.JWT);
       // console.log(tokenDecoded);
 
-      localStorage.token = req.data.JWT
+      window.sessionStorage.token = req.data.JWT
       this.error = false
       
       this.$router.replace(this.$route.query.redirect || '/pedido')
     },
-    loginFailed (error, mensaje = 'Por favor, comprueba que los datos introducidos son correctos.') {
-      if('mensaje'in error.response.data){
-        mensaje = error.response.data.mensaje;
+    loginFailed (error, mensaje = 'Ha habido un problema con el servidor. Por favor, inténtalo de nuevo pasados unos minutos.') {
+      if(typeof error === 'object' &&'data' in error && 'mensaje' in error.data && error.data.mensaje.length){
+        mensaje = error.data.mensaje;
       }
       this.error = mensaje;
-      delete localStorage.token
+      delete window.sessionStorage.token
     }
   },
   mounted (){
